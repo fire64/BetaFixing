@@ -41,3 +41,7 @@
 *.tmp
 *.pdb
 *.asm
+*.bak
+
+
+

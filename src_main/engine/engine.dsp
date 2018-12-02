@@ -322,6 +322,10 @@ SOURCE=..\Public\BSPTreeData.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\Public\studio.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\bugreporter.cpp
 # End Source File
 # Begin Source File

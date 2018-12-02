@@ -954,7 +954,29 @@ SOURCE=.\BlockArray.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\public\studio.cpp
+
+!IF  "$(CFG)" == "Worldcraft - Win32 SDK Release"
+
+!ELSEIF  "$(CFG)" == "Worldcraft - Win32 SDK Debug"
+
+!ELSEIF  "$(CFG)" == "Worldcraft - Win32 Release"
+
+# SUBTRACT BASE CPP /YX /Yc /Yu
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ELSEIF  "$(CFG)" == "Worldcraft - Win32 Debug"
+
+# SUBTRACT BASE CPP /YX /Yc /Yu
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\game_shared\bone_setup.cpp
+
 
 !IF  "$(CFG)" == "Worldcraft - Win32 SDK Release"
 

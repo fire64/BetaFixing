@@ -63,14 +63,14 @@ Studio models are position independent, so the cache manager can move them.
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
 #include "bspflags.h"
 
-#define STUDIO_VERSION		36		// READ ABOVE!!!
+#define STUDIO_VERSION		37		// READ ABOVE!!!
 
 #define MAXSTUDIOTRIANGLES	25000	// TODO: tune this
 #define MAXSTUDIOVERTS		25000	// TODO: tune this
 #define MAXSTUDIOSKINS		32		// total textures
 #define MAXSTUDIOBONES		128		// total bones actually used
 #define MAXSTUDIOBLENDS		32
-#define MAXSTUDIOFLEXDESC	128
+#define MAXSTUDIOFLEXDESC	1024 //128
 #define MAXSTUDIOFLEXCTRL	64
 #define MAXSTUDIOPOSEPARAM	24
 #define MAXSTUDIOBONECTRLS	4
@@ -111,6 +111,25 @@ struct mstudioquatinterpbone_t
 	int				triggerindex;
 	inline mstudioquatinterpinfo_t *pTrigger( int i ) const { return  (mstudioquatinterpinfo_t *)(((byte *)this) + triggerindex) + i; };
 };
+
+// bones
+struct mstudiobone_v30_31t
+{
+	int					sznameindex;
+	inline char * const pszName( void ) const { return ((char *)this) + sznameindex; }
+	int		 			parent;		// parent bone
+	int					bonecontroller[6];	// bone controller index, -1 == none
+	// FIXME: remove the damn default value fields and put in pos
+	float				value[6];	// default DoF values
+	float				scale[6];   // scale for delta DoF values
+
+
+	matrix3x4_t			poseToBone;
+	Quaternion			qAlignment;
+
+	int					flags;		// remove as appropriate
+};
+
 
 // bones
 struct mstudiobone_t
@@ -211,13 +230,23 @@ struct mstudiobbox_t
 // demand loaded sequence groups
 struct mstudioseqgroup_t
 {
+/*
 	int					szlabelindex;	// textual name
 	inline char * const pszLabel( void ) const { return ((char *)this) + szlabelindex; }
 	int					sznameindex;	// file name
 	inline char * const pszName( void ) const { return ((char *)this) + sznameindex; }
-	/* cache_user_t */	void *cache;	// cache index pointer
+	/* cache_user_t *//*	void *cache;	// cache index pointer
 	int					data;			// hack for group 0
-	char				padding[32];	// future expansion.
+	char				padding[32];	// future expansion.*/
+
+	int	szlabelindex;	// textual name
+	inline char * const pszLabel( void ) const { return ((char *)this) + szlabelindex; }
+
+	int	sznameindex;	// file name
+	inline char * const pszName( void ) const { return ((char *)this) + sznameindex; }
+	
+	int					cache;			// cache index in the shared model cache
+	int					data;			// hack for group 0
 };
 
 
@@ -309,7 +338,7 @@ union mstudioanimvalue_t
 // per bone per animation DOF and weight pointers
 struct mstudioanim_t
 {
-	// float			weight;		// bone influence
+//	float			weight;		// bone influence
 	int				flags;		// weighing options
 	union
 	{
@@ -320,6 +349,28 @@ struct mstudioanim_t
 			float			q[4];
 		} pose;
 	} u;
+	inline mstudioanimvalue_t *pAnimvalue( int i ) const { return  (mstudioanimvalue_t *)(((byte *)this) + u.offset[i]); };
+};
+
+struct mstudioanimwrited_t
+{
+	int				flags;		// weighing options
+	int				offset[6];	// pointers to animation 
+	float			pos[3];
+	float			q[4];
+};
+
+
+// per bone per animation DOF and weight pointers
+struct mstudioanim3031_t
+{
+	float			weight;
+
+	union
+	{
+		int			offset[6];	// pointers to animation 
+	} u;
+
 	inline mstudioanimvalue_t *pAnimvalue( int i ) const { return  (mstudioanimvalue_t *)(((byte *)this) + u.offset[i]); };
 };
 
@@ -335,6 +386,36 @@ struct mstudiomovement_t
 	float				angle;		// YAW rotation at end of this blocks movement
 	Vector				vector;		// movement vector relative to this blocks initial angle
 	Vector				position;	// relative to start of animation???
+};
+
+struct mstudioanimdesc_v3031_t
+{
+	int					sznameindex;
+	inline char * const pszName( void ) const { return ((char *)this) + sznameindex; }
+
+	float				fps;		// frames per second	
+	int					flags;		// looping/non-looping flags
+
+	int					numframes;
+
+	// piecewise movement
+	int					nummovements;
+	int					movementindex;
+	inline mstudiomovement_t * const pMovement( int i ) const { return (mstudiomovement_t *)(((byte *)this) + movementindex) + i; };
+
+	Vector				bbmin;		// per animation bounding box
+	Vector				bbmax;		
+
+	int	animindex;		// mstudioanim_t pointer relative to start of mstudioanimdesc_t data
+						// [bone][X, Y, Z, XR, YR, ZR]
+	inline mstudioanim_t		*pAnim( int i ) const { return  (mstudioanim_t *)(((byte *)this) + animindex) + i; };
+	inline mstudioanim3031_t	*pOldAnim( int i ) const { return  (mstudioanim3031_t *)(((byte *)this) + animindex) + i; };
+
+	int					numikrules;
+	int					ikruleindex;
+	inline mstudioikrule_t *pIKRule( int i ) const { return (mstudioikrule_t *)(((byte *)this) + ikruleindex) + i; };
+
+//	int					unused[8];		// remove as appropriate
 };
 
 struct mstudioanimdesc_t
@@ -378,6 +459,22 @@ struct mstudioautolayer_t
 	float				end;	// end of all influence
 };
 
+struct manimindexer_t
+{
+	//-------------------------------------------------------------------------
+	// Purpose: returns a model animation from the sequence group size and
+	//          blend index
+	// Note: this replaces GetAnimValue() that was previously in bone_setup
+	// Note: this also acts as a SetAnimValue() as it returns a reference to
+	//       the anim value in question
+	//-------------------------------------------------------------------------
+	inline int& pAnimValue( int nIndex0, int nIndex1 )
+	{
+		return anim[nIndex0][nIndex1];
+	}
+
+	int					anim[MAXSTUDIOBLENDS][MAXSTUDIOBLENDS];	// animation number
+};
 
 // sequence descriptions
 struct mstudioseqdesc_t
@@ -398,7 +495,117 @@ struct mstudioseqdesc_t
 	inline mstudioevent_t *pEvent( int i ) const { return (mstudioevent_t *)(((byte *)this) + eventindex) + i; };
 
 	Vector				bbmin;		// per sequence bounding box
+	Vector				bbmax;
+
+	//-------------------------------------------------------------------------
+	// Purpose: returns a model animation from the sequence group size and
+	//          blend index
+	// Note: this replaces GetAnimValue() that was previously in bone_setup
+	// Note: this also acts as a SetAnimValue() as it returns a reference to
+	//       the anim value in question
+	//-------------------------------------------------------------------------
+	inline unsigned short& pAnimValue( int nIndex0, int nIndex1 ) const
+	{
+		// Clamp indexes
+		if ( nIndex0 >= groupsize[0] )
+			nIndex0 = groupsize[0] - 1;
+
+		if ( nIndex1 >= groupsize[1] )
+			nIndex1 = groupsize[1] - 1;
+		
+		return *pBlend(nIndex1 * groupsize[0] + nIndex0);
+	}
+
+
+	int					numblends;
+
+	int blendindex;
+	inline manimindexer_t *pAnimIndexer( ) const { return (manimindexer_t *)(((byte *)this) + blendindex); };
+
+
+	inline unsigned short *pBlend( int i ) const { return (unsigned short *)(((byte *)this) + blendindex) + i; };
+
+	int seqgroup; // sequence group for demand loading
+
+	int					groupsize[2];
+	int					paramindex[2];	// X, Y, Z, XR, YR, ZR
+	float				paramstart[2];	// local (0..1) starting value
+	float				paramend[2];	// local (0..1) ending value
+	int					paramparent;
+
+	float				fadeintime;		// ideal cross fate in time (0.2 default)
+	float				fadeouttime;	// ideal cross fade out time (0.2 default)
+
+	int					entrynode;		// transition node at entry
+	int					exitnode;		// transition node at exit
+	int					nodeflags;		// transition rules
+
+	float				entryphase;		// used to match entry gait
+	float				exitphase;		// used to match exit gait
+	
+	float				lastframe;		// frame that should generation EndOfSequence
+
+	int					nextseq;		// auto advancing sequences
+	int					pose;			// index of delta animation between end and nextseq
+
+	int					numikrules;
+
+	int					numautolayers;	//
+	int					autolayerindex;
+	inline mstudioautolayer_t *pAutolayer( int i ) const { return (mstudioautolayer_t *)(((byte *)this) + autolayerindex) + i; };
+
+	int					weightlistindex;
+	float				*pBoneweight( int i ) const { return ((float *)(((byte *)this) + weightlistindex) + i); };
+	float				weight( int i ) const { return *(pBoneweight( i)); };
+
+	int					posekeyindex;
+	float				*pPoseKey( int iParam, int iAnim ) const { return (float *)(((byte *)this) + posekeyindex) + iParam * groupsize[0] + iAnim; }
+	float				poseKey( int iParam, int iAnim ) const { return *(pPoseKey( iParam, iAnim )); }
+
+	int					numiklocks;
+	int					iklockindex;
+	inline mstudioiklock_t *pIKLock( int i ) const { return (mstudioiklock_t *)(((byte *)this) + iklockindex) + i; };
+
+	// Key values
+	int					keyvalueindex;
+	int					keyvaluesize;
+	inline const char * KeyValueText( void ) const { return keyvaluesize != 0 ? ((char *)this) + keyvalueindex : NULL; }
+
+	int					unused[3];		// remove/add as appropriate (grow back to 8 ints on version change!)
+};
+
+// sequence descriptions
+struct mstudioseqdesc_v36_t
+{
+	int					szlabelindex;
+	inline char * const pszLabel( void ) const { return ((char *)this) + szlabelindex; }
+
+	int					szactivitynameindex;
+	inline char * const pszActivityName( void ) const { return ((char *)this) + szactivitynameindex; }
+
+	int					flags;		// looping/non-looping flags
+
+	int					activity;	// initialized at loadtime to game DLL values
+	int					actweight;
+
+	int					numevents;
+	int					eventindex;
+	inline mstudioevent_t *pEvent( int i ) const { return (mstudioevent_t *)(((byte *)this) + eventindex) + i; };
+
+	Vector				bbmin;		// per sequence bounding box
 	Vector				bbmax;		
+
+	//-------------------------------------------------------------------------
+	// Purpose: returns a model animation from the sequence group size and
+	//          blend index
+	// Note: this replaces GetAnimValue() that was previously in bone_setup
+	// Note: this also acts as a SetAnimValue() as it returns a reference to
+	//       the anim value in question
+	//-------------------------------------------------------------------------
+	inline int& pAnimValue( int nIndex0, int nIndex1 )
+	{
+		return anim[nIndex0][nIndex1];
+	}
 
 	int					numblends;
 
@@ -452,6 +659,78 @@ struct mstudioseqdesc_t
 	inline const char * KeyValueText( void ) const { return keyvaluesize != 0 ? ((char *)this) + keyvalueindex : NULL; }
 
 	int					unused[3];		// remove/add as appropriate (grow back to 8 ints on version change!)
+};
+
+// sequence descriptions
+struct mstudioseqdesc_v3031_t
+{
+	int					szlabelindex;
+	inline char * const pszLabel( void ) const { return ((char *)this) + szlabelindex; }
+
+	int					szactivitynameindex;
+	inline char * const pszActivityName( void ) const { return ((char *)this) + szactivitynameindex; }
+
+	int					flags;		// looping/non-looping flags
+
+	int					activity;	// initialized at loadtime to game DLL values
+	int					actweight;
+
+	int					numevents;
+	int					eventindex;
+	inline mstudioevent_t *pEvent( int i ) const { return (mstudioevent_t *)(((byte *)this) + eventindex) + i; };
+
+	Vector				bbmin;		// per sequence bounding box
+	Vector				bbmax;		
+
+	//-------------------------------------------------------------------------
+	// Purpose: returns a model animation from the sequence group size and
+	//          blend index
+	// Note: this replaces GetAnimValue() that was previously in bone_setup
+	// Note: this also acts as a SetAnimValue() as it returns a reference to
+	//       the anim value in question
+	//-------------------------------------------------------------------------
+	inline int& pAnimValue( int nIndex0, int nIndex1 )
+	{
+		return anim[nIndex0][nIndex1];
+	}
+
+	int					numblends;
+
+	int					anim[MAXSTUDIOBLENDS][MAXSTUDIOBLENDS];	// animation number
+
+	int					movementindex;	// [blend] float array for blended movement
+	int					groupsize[2];
+	int					paramindex[2];	// X, Y, Z, XR, YR, ZR
+	float				paramstart[2];	// local (0..1) starting value
+	float				paramend[2];	// local (0..1) ending value
+	int					paramparent;
+
+	int					seqgroup;		// sequence group for demand loading
+
+	float				fadeintime;		// ideal cross fate in time (0.2 default)
+	float				fadeouttime;	// ideal cross fade out time (0.2 default)
+
+	int					entrynode;		// transition node at entry
+	int					exitnode;		// transition node at exit
+	int					nodeflags;		// transition rules
+
+	float				entryphase;		// used to match entry gait
+	float				exitphase;		// used to match exit gait
+	
+	float				lastframe;		// frame that should generation EndOfSequence
+
+	int					nextseq;		// auto advancing sequences
+	int					pose;			// index of delta animation between end and nextseq
+
+	int					numikrules;
+
+	int					numautolayers;	//
+	int					autolayerindex;
+	inline mstudioautolayer_t *pAutolayer( int i ) const { return (mstudioautolayer_t *)(((byte *)this) + autolayerindex) + i; };
+
+	int					weightlistindex;
+	float				*pBoneweight( int i ) const { return ((float *)(((byte *)this) + weightlistindex) + i); };
+	float				weight( int i ) const { return *(pBoneweight( i)); };
 };
 
 
@@ -657,6 +936,46 @@ struct mstudiomesh_t
 };
 
 // studio models
+struct mstudiomodel2830_t
+{
+	char				name[64];
+
+	int					type;
+
+	float				boundingradius;
+
+	int					nummeshes;	
+	int					meshindex;
+	inline mstudiomesh_t *pMesh( int i ) const { return (mstudiomesh_t *)(((byte *)this) + meshindex) + i; };
+
+	// cache purposes
+	int					numvertices;		// number of unique vertices/normals/texcoords
+	int					vertexindex;		// vertex Vector
+	int					normalsindex;		// normals Vector
+	int					tangentsindex;
+	int					texcoordindex;
+
+	//Why do it?
+	inline  Vector *Position( int i ) { return (Vector *)(((byte *)this) + vertexindex) + i; };
+	inline  Vector *Normal( int i ) { return (Vector *)(((byte *)this) + normalsindex) + i; };
+	inline  Vector2D *Texcoord( int i ) { return (Vector2D *)(((byte *)this) + texcoordindex) + i; };
+	inline  Vector4D *TangentS( int i ) { return (Vector4D *)(((byte *)this) + tangentsindex) + i; };
+
+	int					hzoffset;
+	int					unk1;
+	int					unk2;
+
+	int					hz2num;
+	int					hz2offset;
+
+//	int					numeyeballs;
+//	int					eyeballindex;
+//	inline  mstudioeyeball_t *pEyeball( int i ) { return (mstudioeyeball_t *)(((byte *)this) + eyeballindex) + i; };
+//
+//	int					unused[3];		// remove as appropriate
+};
+
+// studio models
 struct mstudiomodel_t
 {
 	char				name[64];
@@ -830,6 +1149,7 @@ struct mstudiobodyparts_t
 	int					base;
 	int					modelindex; // index into models array
 	inline mstudiomodel_t *pModel( int i ) const { return (mstudiomodel_t *)(((byte *)this) + modelindex) + i; };
+	inline mstudiomodel2830_t *pOldModel( int i ) const { return (mstudiomodel2830_t *)(((byte *)this) + modelindex) + i; };
 };
 
 
@@ -883,7 +1203,329 @@ struct mstudiohitboxset_t
 // instead of overriding them with the default one (necessary for translucent shadows)
 #define STUDIOHDR_FLAGS_USE_SHADOWLOD_MATERIALS	( 1 << 8 )
 
+#if STUDIO_VERSION == 37
+struct mstudioanimgroup_t
+{
+	int group;	// Sequence group
+	int index;	// Animation index
+};
+
+struct mstudiobonedesc_t
+{
+	int 	sznameindex;
+	inline  char * const	pszName( void ) const {	return ((char *)this) + sznameindex; };
+
+	int parent;		// parent bone
+
+	// FIXME: remove the damn default value fields and put in pos
+	float value[6]; // default DoF values
+	float scale[6]; // scale for delta DoF values
+	matrix3x4_t poseToBone;
+
+	float fivefloat[5];
+//	Quaternion	qAlignment;
+
+//	int		unused[3];		// remove as appropriate
+};
+#endif
+
 struct studiohdr_t
+{
+	int					id;
+	int					version;
+
+	long				checksum;		// this has to be the same in the phy and vtx files to load!
+	
+	char				name[64];
+	int					length;
+
+
+	Vector				eyeposition;	// ideal eye position
+
+	Vector				illumposition;	// illumination center
+	
+	Vector				hull_min;			// ideal movement hull size
+	Vector				hull_max;			
+
+	Vector				view_bbmin;			// clipping bounding box
+	Vector				view_bbmax;		
+
+	int					flags;
+
+	int					numbones;			// bones
+	int					boneindex;
+	inline mstudiobone_t *pBone( int i ) const { return (mstudiobone_t *)(((byte *)this) + boneindex) + i; };
+
+	int					numbonecontrollers;		// bone controllers
+	int					bonecontrollerindex;
+	inline mstudiobonecontroller_t *pBonecontroller( int i ) const { return (mstudiobonecontroller_t *)(((byte *)this) + bonecontrollerindex) + i; };
+
+	int					numhitboxsets;
+	int					hitboxsetindex;
+
+
+
+	// Look up hitbox set by index
+	mstudiohitboxset_t	*pHitboxSet( int i ) const 
+	{ 
+		return (mstudiohitboxset_t *)(((byte *)this) + hitboxsetindex ) + i; 
+	};
+
+	// Calls through to hitbox to determine size of specified set
+	inline mstudiobbox_t *pHitbox( int i, int set ) const 
+	{ 
+		mstudiohitboxset_t const *s = pHitboxSet( set );
+		if ( !s )
+			return NULL;
+
+		return s->pHitbox( i );
+	};
+
+	// Calls through to set to get hitbox count for set
+	inline int			iHitboxCount( int set ) const
+	{
+		mstudiohitboxset_t const *s = pHitboxSet( set );
+		if ( !s )
+			return 0;
+
+		return s->numhitboxes;
+	};
+
+	/*
+	int					numhitboxes;			// complex bounding boxes
+	int					hitboxindex;			
+	inline mstudiobbox_t *pHitbox( int i ) const { return (mstudiobbox_t *)(((byte *)this) + hitboxindex) + i; };
+	*/
+	
+	int					numanim;			// animations/poses
+	int					animdescindex;		// animation descriptions
+	inline mstudioanimdesc_t *pAnimdesc( int i ) const { return (mstudioanimdesc_t *)(((byte *)this) + animdescindex) + i; };
+
+	int 	numanimgroup;
+	int 	animgroupindex;
+	inline  mstudioanimgroup_t *pAnimGroup(int i) const	{ return (mstudioanimgroup_t *)(((byte *)this) + animgroupindex) + i; };
+
+	int 	numbonedesc;
+	int 	bonedescindex;
+	inline  mstudiobonedesc_t *pBoneDesc(int i) const { return (mstudiobonedesc_t *)(((byte *)this) + bonedescindex) + i; };
+
+	int					numseq;				// sequences
+	int					seqindex;
+	inline mstudioseqdesc_t *pSeqdesc( int i ) const { if (i < 0 || i >= numseq) i = 0; return (mstudioseqdesc_t *)(((byte *)this) + seqindex) + i; };
+	inline mstudioseqdesc_v36_t *pOldSeqdesc( int i ) const { if (i < 0 || i >= numseq) i = 0; return (mstudioseqdesc_v36_t *)(((byte *)this) + seqindex) + i; };
+
+	int					sequencesindexed;	// initialization flag - have the sequences been indexed?
+
+	int					numseqgroups;		// demand loaded sequences
+	int					seqgroupindex;
+	inline  mstudioseqgroup_t *pSeqgroup(int i) const { return (mstudioseqgroup_t *)(((byte *)this) + seqgroupindex) + i; };
+
+	int					numtextures;		// raw textures
+	int					textureindex;
+	inline mstudiotexture_t *pTexture( int i ) const { return (mstudiotexture_t *)(((byte *)this) + textureindex) + i; }; 
+
+	int					numcdtextures;		// raw textures search paths
+	int					cdtextureindex;
+	inline char			*pCdtexture( int i ) const { return (((char *)this) + *((int *)(((byte *)this) + cdtextureindex) + i)); };
+
+	int					numskinref;			// replaceable textures tables
+	int					numskinfamilies;
+	int					skinindex;
+	inline short		*pSkinref( int i ) const { return (short *)(((byte *)this) + skinindex) + i; };
+
+	int					numbodyparts;		
+	int					bodypartindex;
+	inline mstudiobodyparts_t	*pBodypart( int i ) const { return (mstudiobodyparts_t *)(((byte *)this) + bodypartindex) + i; };
+
+	int					numattachments;		// queryable attachable points
+	int					attachmentindex;
+	inline mstudioattachment_t	*pAttachment( int i ) const { return (mstudioattachment_t *)(((byte *)this) + attachmentindex) + i; };
+
+	int					numtransitions;		// animation node to animation node transition graph
+	int					transitionindex;
+	inline byte	*pTransition( int i ) const { return (byte *)(((byte *)this) + transitionindex) + i; };
+
+	int					numflexdesc;
+	int					flexdescindex;
+	inline mstudioflexdesc_t *pFlexdesc( int i ) const { return (mstudioflexdesc_t *)(((byte *)this) + flexdescindex) + i; };
+
+	int					numflexcontrollers;
+	int					flexcontrollerindex;
+	inline mstudioflexcontroller_t *pFlexcontroller( int i ) const { return (mstudioflexcontroller_t *)(((byte *)this) + flexcontrollerindex) + i; };
+
+	int					numflexrules;
+	int					flexruleindex;
+	inline mstudioflexrule_t *pFlexRule( int i ) const { return (mstudioflexrule_t *)(((byte *)this) + flexruleindex) + i; };
+
+	int					numikchains;
+	int					ikchainindex;
+	inline mstudioikchain_t *pIKChain( int i ) const { return (mstudioikchain_t *)(((byte *)this) + ikchainindex) + i; };
+
+	int					nummouths;
+	int					mouthindex;
+	inline mstudiomouth_t *pMouth( int i ) const { return (mstudiomouth_t *)(((byte *)this) + mouthindex) + i; };
+
+	int					numposeparameters;
+	int					poseparamindex;
+	inline mstudioposeparamdesc_t *pPoseParameter( int i ) const { return (mstudioposeparamdesc_t *)(((byte *)this) + poseparamindex) + i; };
+
+	int					surfacepropindex;
+	inline char * const pszSurfaceProp( void ) const { return ((char *)this) + surfacepropindex; }
+
+	// Key values
+	int					keyvalueindex;
+	int					keyvaluesize;
+	inline const char * KeyValueText( void ) const { return keyvaluesize != 0 ? ((char *)this) + keyvalueindex : NULL; }
+
+	int					numikautoplaylocks;
+	int					ikautoplaylockindex;
+	inline mstudioiklock_t *pIKAutoplayLock( int i ) const { return (mstudioiklock_t *)(((byte *)this) + ikautoplaylockindex) + i; };
+
+	float				mass;				// The collision model mass that jay wanted
+	int					contents;
+	int					unused[9];		// remove as appropriate
+};
+
+struct studiohdr_v30_31_t
+{
+	int					id;
+	int					version;
+
+	long				checksum;		// this has to be the same in the phy and vtx files to load!
+	
+	char				name[64];
+	int					length;
+
+
+	Vector				eyeposition;	// ideal eye position
+
+	Vector				illumposition;	// illumination center
+	
+	Vector				hull_min;			// ideal movement hull size
+	Vector				hull_max;			
+
+	Vector				view_bbmin;			// clipping bounding box
+	Vector				view_bbmax;		
+
+	int					flags;
+
+	int					numbones;			// bones
+	int					boneindex;
+	inline mstudiobone_v30_31t *pOldBone( int i ) const { return (mstudiobone_v30_31t *)(((byte *)this) + boneindex) + i; };
+	inline mstudiobone_t *pNewBone( int i ) const { return (mstudiobone_t *)(((byte *)this) + boneindex) + i; };
+
+	int					numbonecontrollers;		// bone controllers
+	int					bonecontrollerindex;
+	inline mstudiobonecontroller_t *pBonecontroller( int i ) const { return (mstudiobonecontroller_t *)(((byte *)this) + bonecontrollerindex) + i; };
+
+	int					numhitboxsets;
+	int					hitboxsetindex;
+
+
+
+	// Look up hitbox set by index
+	mstudiohitboxset_t	*pHitboxSet( int i ) const 
+	{ 
+		return (mstudiohitboxset_t *)(((byte *)this) + hitboxsetindex ) + i; 
+	};
+
+	// Calls through to hitbox to determine size of specified set
+	inline mstudiobbox_t *pHitbox( int i, int set ) const 
+	{ 
+		mstudiohitboxset_t const *s = pHitboxSet( set );
+		if ( !s )
+			return NULL;
+
+		return s->pHitbox( i );
+	};
+
+	// Calls through to set to get hitbox count for set
+	inline int			iHitboxCount( int set ) const
+	{
+		mstudiohitboxset_t const *s = pHitboxSet( set );
+		if ( !s )
+			return 0;
+
+		return s->numhitboxes;
+	};
+
+	/*
+	int					numhitboxes;			// complex bounding boxes
+	int					hitboxindex;			
+	inline mstudiobbox_t *pHitbox( int i ) const { return (mstudiobbox_t *)(((byte *)this) + hitboxindex) + i; };
+	*/
+	
+	int					numanim;			// animations/poses
+	int					animdescindex;		// animation descriptions
+	inline mstudioanimdesc_t *pAnimdesc( int i ) const { return (mstudioanimdesc_t *)(((byte *)this) + animdescindex) + i; };
+	inline mstudioanimdesc_v3031_t *pOldAnimdesc( int i ) const { return (mstudioanimdesc_v3031_t *)(((byte *)this) + animdescindex) + i; };
+
+	int					numseq;				// sequences
+	int					seqindex;
+	inline mstudioseqdesc_t *pSeqdesc( int i ) const { if (i < 0 || i >= numseq) i = 0; return (mstudioseqdesc_t *)(((byte *)this) + seqindex) + i; };
+	inline mstudioseqdesc_v3031_t *pOldSeqdesc( int i ) const { if (i < 0 || i >= numseq) i = 0; return (mstudioseqdesc_v3031_t *)(((byte *)this) + seqindex) + i; };
+
+	
+	int					sequencesindexed;	// initialization flag - have the sequences been indexed?
+
+	int					numseqgroups;		// demand loaded sequences
+	int					seqgroupindex;
+
+	int					numtextures;		// raw textures
+	int					textureindex;
+	inline mstudiotexture_t *pTexture( int i ) const { return (mstudiotexture_t *)(((byte *)this) + textureindex) + i; }; 
+
+	int					numcdtextures;		// raw textures search paths
+	int					cdtextureindex;
+	inline char			*pCdtexture( int i ) const { return (((char *)this) + *((int *)(((byte *)this) + cdtextureindex) + i)); };
+
+	int					numskinref;			// replaceable textures tables
+	int					numskinfamilies;
+	int					skinindex;
+	inline short		*pSkinref( int i ) const { return (short *)(((byte *)this) + skinindex) + i; };
+
+	int					numbodyparts;		
+	int					bodypartindex;
+	inline mstudiobodyparts_t	*pBodypart( int i ) const { return (mstudiobodyparts_t *)(((byte *)this) + bodypartindex) + i; };
+
+	int					numattachments;		// queryable attachable points
+	int					attachmentindex;
+	inline mstudioattachment_t	*pAttachment( int i ) const { return (mstudioattachment_t *)(((byte *)this) + attachmentindex) + i; };
+
+	int					numtransitions;		// animation node to animation node transition graph
+	int					transitionindex;
+	inline byte	*pTransition( int i ) const { return (byte *)(((byte *)this) + transitionindex) + i; };
+
+	int					numflexdesc;
+	int					flexdescindex;
+	inline mstudioflexdesc_t *pFlexdesc( int i ) const { return (mstudioflexdesc_t *)(((byte *)this) + flexdescindex) + i; };
+
+	int					numflexcontrollers;
+	int					flexcontrollerindex;
+	inline mstudioflexcontroller_t *pFlexcontroller( int i ) const { return (mstudioflexcontroller_t *)(((byte *)this) + flexcontrollerindex) + i; };
+
+	int					numflexrules;
+	int					flexruleindex;
+	inline mstudioflexrule_t *pFlexRule( int i ) const { return (mstudioflexrule_t *)(((byte *)this) + flexruleindex) + i; };
+
+	int					numikchains;
+	int					ikchainindex;
+	inline mstudioikchain_t *pIKChain( int i ) const { return (mstudioikchain_t *)(((byte *)this) + ikchainindex) + i; };
+
+	int					nummouths;
+	int					mouthindex;
+	inline mstudiomouth_t *pMouth( int i ) const { return (mstudiomouth_t *)(((byte *)this) + mouthindex) + i; };
+
+	int					numposeparameters;
+	int					poseparamindex;
+	inline mstudioposeparamdesc_t *pPoseParameter( int i ) const { return (mstudioposeparamdesc_t *)(((byte *)this) + poseparamindex) + i; };
+
+	int					surfacepropindex;
+	inline char * const pszSurfaceProp( void ) const { return ((char *)this) + surfacepropindex; }
+};
+
+
+struct studiohdr_v36_t
 {
 	int					id;
 	int					version;
@@ -958,6 +1600,9 @@ struct studiohdr_t
 	int					numseq;				// sequences
 	int					seqindex;
 	inline mstudioseqdesc_t *pSeqdesc( int i ) const { if (i < 0 || i >= numseq) i = 0; return (mstudioseqdesc_t *)(((byte *)this) + seqindex) + i; };
+	inline mstudioseqdesc_v36_t *pOldSeqdesc( int i ) const { if (i < 0 || i >= numseq) i = 0; return (mstudioseqdesc_v36_t *)(((byte *)this) + seqindex) + i; };
+
+	
 	int					sequencesindexed;	// initialization flag - have the sequences been indexed?
 
 	int					numseqgroups;		// demand loaded sequences
@@ -1039,6 +1684,27 @@ struct studioseqhdr_t
 	int					length;
 };
 
+#if STUDIO_VERSION == 37
+// header for shared sequence data (e.g. male_0101.mdl, cs_shared.mdl)
+struct studiosharehdr_t
+{
+	int id;
+	int version;
+
+	char name[64];
+	int length;
+
+	int data;
+
+	int 	numbonedesc;
+	int 	bonedescindex;
+	inline  mstudiobonedesc_t *pBoneDesc(int i) const { return (mstudiobonedesc_t *)(((byte *)this) + bonedescindex) + i; };
+
+	int	numanim;		// animations/poses
+	int	animdescindex;	// animation descriptions
+	inline mstudioanimdesc_t *pAnimdesc( int i ) const { return (mstudioanimdesc_t *)(((byte *)this) + animdescindex) + i; };
+};
+#endif
 
 // Vector	boundingbox[model][bone][2];	// complex intersection info
 
@@ -1299,38 +1965,10 @@ inline int flexsetting_t::psetting( byte *base, int i, flexweight_t **weights ) 
 #define STUDIO_SPLINE	0x0080		// 
 #define STUDIO_REALTIME	0x0100		// 
 
-// Insert this code anywhere that you need to allow for conversion from an old STUDIO_VERSION
-// to a new one.
-// If we only support the current version, this function should be empty.
-inline void Studio_ConvertStudioHdrToNewVersion( studiohdr_t *pStudioHdr )
-{
-	COMPILE_TIME_ASSERT( STUDIO_VERSION == 36 ); //  put this to make sure this code is updated upon changing version.
-	int version = pStudioHdr->version;
+void Studio_ConvertStudioHdrToNewVersion( studiohdr_t *pStudioHdr );
+int LoadOldAnimation( const mstudioseqdesc_t *pSeqDesc, int index1, int index2);
+//void DumpOldAnimation( studiohdr_t *pStudioHdr );
+studiosharehdr_t *LoadSharedModel( char *pModelName );
 
-	if( version == STUDIO_VERSION )
-	{
-		return;
-	}
-
-	// Slam all bone contents to SOLID for versions <= 35
-	if ( version <= 35 )
-	{
-		pStudioHdr->contents = CONTENTS_SOLID;
-
-		int i;
-		for( i = 0; i < pStudioHdr->numbones; i++ )
-		{
-			mstudiobone_t *pBone = pStudioHdr->pBone( i );
-			pBone->contents = CONTENTS_SOLID;
-		}
-	}
-
-	if( version >= 35 )
-	{
-		// Don't remove this!!!!  This code has to be inspected everytime the studio format changes.
-		COMPILE_TIME_ASSERT( STUDIO_VERSION == 36 ); //  put this to make sure this code is updated upon changing version.
-		pStudioHdr->version = STUDIO_VERSION;
-	}
-}
 
 #endif // STUDIO_H

@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G6 /W3 /GR /Zi /O2 /I "..\..\..\statemachine" /I "..\..\mxtk\include" /I "..\..\common" /I "..\..\..\Public" /I "..\..\..\Game_Shared" /I "..\..\..\game_shared\tf2" /D "WIN32" /D "_WINDOWS" /D "PROTECTED_THINGS_DISABLE" /D "NDEBUG" /D "_WIN32" /YX /FD /I /mxtk/include" " /c
+# ADD CPP /nologo /G6 /W3 /GR /Zi /O2 /I "..\..\..\statemachine" /I "..\..\mxtk\include" /I "..\..\common" /I "..\..\..\Public" /I "..\..\..\Game_Shared" /I "..\..\..\game_shared\tf2" /I "..\..\..\public" /D "WIN32" /D "_WINDOWS" /D "PROTECTED_THINGS_DISABLE" /D "NDEBUG" /D "_WIN32" /YX /FD /I /mxtk/include" " /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -57,7 +57,7 @@ LINK32=link.exe
 # ADD LINK32 user32.lib shell32.lib gdi32.lib advapi32.lib comctl32.lib winmm.lib comdlg32.lib /nologo /version:1.2 /entry:"mainCRTStartup" /subsystem:windows /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /out:"hlmv.exe" /libpath:"..\..\..\lib\common" /libpath:"..\..\..\lib\public" /release
 # SUBTRACT LINK32 /pdb:none
 # Begin Custom Build - Performing Custom Build Step on $(InputPath)
-TargetDir=\hl2\src\utils\hlmviewer\src
+TargetDir=\Projects\BetaFixer\BetaFixing\src_main\utils\hlmviewer\src
 TargetPath=.\hlmv.exe
 TargetName=hlmv
 InputPath=.\hlmv.exe
@@ -84,7 +84,7 @@ SOURCE="$(InputPath)"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G6 /W3 /Gm /Gi /GR /ZI /Od /I "..\..\..\statemachine" /I "..\..\mxtk\include" /I "..\..\common" /I "..\..\..\Public" /I "..\..\..\Game_Shared" /I "..\..\..\game_shared\tf2" /D "VECTOR" /D "WIN32" /D "_WINDOWS" /D "PROTECTED_THINGS_DISABLE" /D "_DEBUG" /D "_WIN32" /FR /YX /FD /I /mxtk/include" " /c
+# ADD CPP /nologo /G6 /W3 /Gm /Gi /GR /ZI /Od /I "..\..\..\statemachine" /I "..\..\mxtk\include" /I "..\..\common" /I "..\..\..\Public" /I "..\..\..\Game_Shared" /I "..\..\..\game_shared\tf2" /I "..\..\..\public" /D "VECTOR" /D "WIN32" /D "_WINDOWS" /D "PROTECTED_THINGS_DISABLE" /D "_DEBUG" /D "_WIN32" /FR /YX /FD /I /mxtk/include" " /c
 # SUBTRACT CPP /X
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -98,7 +98,7 @@ LINK32=link.exe
 # ADD LINK32 user32.lib shell32.lib gdi32.lib advapi32.lib comctl32.lib winmm.lib comdlg32.lib /nologo /version:1.1 /entry:"mainCRTStartup" /subsystem:windows /debug /machine:I386 /out:"hlmv.exe" /pdbtype:sept /libpath:"..\..\..\lib\common" /libpath:"..\..\..\lib\public"
 # SUBTRACT LINK32 /pdb:none
 # Begin Custom Build
-TargetDir=\hl2\src\utils\hlmviewer\src
+TargetDir=\Projects\BetaFixer\BetaFixing\src_main\utils\hlmviewer\src
 TargetPath=.\hlmv.exe
 TargetName=hlmv
 InputPath=.\hlmv.exe
@@ -191,6 +191,11 @@ SOURCE=..\..\..\Public\physdll.cpp
 # Begin Source File
 
 SOURCE=..\src\physmesh.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Public\studio.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 

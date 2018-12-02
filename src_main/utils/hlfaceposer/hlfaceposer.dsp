@@ -580,6 +580,11 @@ SOURCE=..\..\game_shared\bone_setup.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\public\studio.cpp
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\public\characterset.cpp
 # End Source File
 # Begin Source File

@@ -17,6 +17,78 @@ void BuildBoneChain(
 	matrix3x4_t *pBoneToWorld );
 
 //-----------------------------------------------------------------------------
+// Purpose: returns a model animation from the sequence group and returns a
+//          usable animation description 
+//-----------------------------------------------------------------------------
+static mstudioanimdesc_t *GetAnimDesc( const studiohdr_t *pStudioHdr, const mstudioseqdesc_t *pSeqDesc, int index1=0, int index2=0 )
+{
+#if STUDIO_VERSION >= 37
+	// ========================================================================
+	// NOTE: Older code available http://pastebin.com/f10885875 for reference
+	// ========================================================================
+
+	// TODO: Ideazlistically we should be pre-loading shared models when the
+	//       model is loaded to prevent potential "hitches" upon GetAnimDesc
+
+	// Get the animation group
+	int iAnimGroup = pSeqDesc->pAnimValue(index1, index2);
+
+	if( iAnimGroup < 0 || iAnimGroup > pStudioHdr->numanimgroup || pStudioHdr->unused[0] > 0 )
+	{
+		return pStudioHdr->pAnimdesc( LoadOldAnimation( pSeqDesc, index1, index2) ); // Fall back to Jesus-pose
+	}
+
+	Assert(iAnimGroup >= 0 && iAnimGroup < pStudioHdr->numanimgroup);
+	
+	// Get the sequence group, ensure that it's lower than numseqgroups
+	int iSeqGroup = pStudioHdr->pAnimGroup(iAnimGroup)->group;
+	Assert(iSeqGroup < pStudioHdr->numseqgroups);
+	
+	// Get the animation index
+	int iAnimIndex = pStudioHdr->pAnimGroup(iAnimGroup)->index;
+	
+	// Simply pAnimdesc the current model
+	if(iSeqGroup == 0)
+		return pStudioHdr->pAnimdesc(iAnimIndex);
+	
+	// Get the sequence group
+	mstudioseqgroup_t* pSeqGroup = pStudioHdr->pSeqgroup(iSeqGroup);
+	Assert(pSeqGroup);
+
+	// We only support "shared_animation" multiple sequence groups
+	//
+	// NOTE: in some models pszName() and pszLabel() are the same string
+	//       only male_01.mdl is known to have "shared_animation" as its
+	//       pszLabel()
+	if(pSeqGroup->szlabelindex != pSeqGroup->sznameindex)
+	{
+		if(Q_strcmp(pSeqGroup->pszLabel(), "shared_animation"))
+		{
+			Warning("Invalid non-zero sequence group label: \"%s\", only \"shared_animation\" is supported.\n");
+			return pStudioHdr->pAnimdesc(0); // Fall back to Jesus-pose
+		}
+	}
+
+	studiosharehdr_t *pSharedHDR = LoadSharedModel( pSeqGroup->pszName() );
+
+
+	if( pSharedHDR )
+	{
+		return pSharedHDR->pAnimdesc(iAnimIndex);
+	}
+
+	return pStudioHdr->pAnimdesc(0); // Fall back to Jesus-pose
+
+#else
+	// No shared animations in STUDIO_VERSION < 37
+	return pStudioHdr->pAnimdesc(pSeqDesc->anim[index1][index2]);
+#endif
+
+return pStudioHdr->pAnimdesc(0); // Fall back to Jesus-pose
+
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: return a sub frame rotation for a single bone
 //-----------------------------------------------------------------------------
 void CalcBoneQuaternion( const studiohdr_t *pStudioHdr, int frame, float s, 
@@ -536,12 +608,20 @@ void InitPose(
 
 		pos[i] = Vector( pbone->value[0], pbone->value[1], pbone->value[2] );
 
-		AssertMsg( (STUDIO_VERSION == 35) || (STUDIO_VERSION == 36), "Remove the code after this line" );
-		// FIXME!!!
-		if ( pbone->quat.w == 0.0)
+	//	AssertMsg( (STUDIO_VERSION == 35) || (STUDIO_VERSION == 36), "Remove the code after this line" );
+
+		if( pStudioHdr->unused[0] > 0 )
 		{
-			AngleQuaternion( RadianEuler( pbone->value[3], pbone->value[4], pbone->value[5] ), q[i] );
-			QuaternionAlign( pbone->qAlignment, q[i], q[i] );
+			// FIXME!!!
+			if ( pbone->quat.w == 0.0)
+			{
+				AngleQuaternion( RadianEuler( pbone->value[3], pbone->value[4], pbone->value[5] ), q[i] );
+				QuaternionAlign( pbone->qAlignment, q[i], q[i] );
+			}
+			else
+			{
+				q[i] = pbone->quat;
+			}
 		}
 		else
 		{
@@ -604,13 +684,13 @@ bool CalcPoseSingle(
 	{
 		if (pseqdesc->groupsize[0] == 1)
 		{
-			panim0 = pStudioHdr->pAnimdesc(pseqdesc->anim[0][0]);
+			panim0 = GetAnimDesc( pStudioHdr, pseqdesc, 0, 0 );
 			CalcRotations( pStudioHdr, pos, q, pseqdesc, panim0, cycle, boneMask);
 		}
 		else
 		{
-			panim0 = pStudioHdr->pAnimdesc(pseqdesc->anim[i0  ][i1  ]);
-			panim1 = pStudioHdr->pAnimdesc(pseqdesc->anim[i0+1][i1  ]);
+			panim0 = GetAnimDesc( pStudioHdr, pseqdesc, i0  , i1   );
+			panim1 = GetAnimDesc( pStudioHdr, pseqdesc, i0+1, i1   );
 
 			// remove "zero" positional blends
 			if ((panim0->flags & STUDIO_ALLZEROS) && (s0 < 0.001))
@@ -632,8 +712,8 @@ bool CalcPoseSingle(
 	{
 		if (pseqdesc->groupsize[0] == 1)
 		{
-			panim0 = pStudioHdr->pAnimdesc(pseqdesc->anim[i0  ][i1  ]);
-			panim1 = pStudioHdr->pAnimdesc(pseqdesc->anim[i0  ][i1+1]);
+			panim0 = GetAnimDesc( pStudioHdr, pseqdesc, i0  , i1   );
+			panim1 = GetAnimDesc( pStudioHdr, pseqdesc, i0  , i1+1 );
 
 			CalcRotations( pStudioHdr, pos,  q,  pseqdesc, panim0, cycle, boneMask );
 			CalcRotations( pStudioHdr, pos2, q2, pseqdesc, panim1, cycle, boneMask );
@@ -642,16 +722,16 @@ bool CalcPoseSingle(
 		}
 		else
 		{
-			panim0 = pStudioHdr->pAnimdesc(pseqdesc->anim[i0  ][i1]);
-			panim1 = pStudioHdr->pAnimdesc(pseqdesc->anim[i0+1][i1]);
+			panim0 = GetAnimDesc( pStudioHdr, pseqdesc, i0  , i1 );
+			panim1 = GetAnimDesc( pStudioHdr, pseqdesc, i0+1, i1 );
 
 			CalcRotations( pStudioHdr, pos,  q,  pseqdesc, panim0, cycle, boneMask );
 			CalcRotations( pStudioHdr, pos2, q2, pseqdesc, panim1, cycle, boneMask );
 
 			BlendBones( pStudioHdr, q, pos, pseqdesc, q2, pos2, s0, boneMask );
 			
-			panim0 = pStudioHdr->pAnimdesc(pseqdesc->anim[i0  ][i1+1]);
-			panim1 = pStudioHdr->pAnimdesc(pseqdesc->anim[i0+1][i1+1]);
+			panim0 = GetAnimDesc( pStudioHdr, pseqdesc, i0  , i1+1 );
+			panim1 = GetAnimDesc( pStudioHdr, pseqdesc, i0+1, i1+1 );
 
 			CalcRotations( pStudioHdr, pos2, q2, pseqdesc, panim0, cycle, boneMask );
 			CalcRotations( pStudioHdr, pos3, q3, pseqdesc, panim1, cycle, boneMask );
@@ -800,6 +880,9 @@ void AccumulatePose(
 	Assert( flWeight >= 0.0f && flWeight <= 1.0f );
 	// This shouldn't be necessary, but the Assert should help us catch whoever is screwing this up
 	flWeight = clamp( flWeight, 0.0f, 1.0f );
+
+	if ( sequence < 0 )
+		return;
 
 	mstudioseqdesc_t	*pseqdesc = pStudioHdr->pSeqdesc( sequence );
 
@@ -1496,14 +1579,14 @@ bool CIKContext::Estimate(
 
 					deltaPos.Init();
 
-					AssertMsg( (STUDIO_VERSION == 35) || (STUDIO_VERSION == 36), "Remove the code after this line" );
+//					AssertMsg( (STUDIO_VERSION == 35) || (STUDIO_VERSION == 36), "Remove the code after this line" );
 					// hack in the contact point if the model hasn't been rebuilt
 					float contact = pRule->contact;
 					if (contact == 0.0 && pRule->peak != 0.0)
 					{
 						contact = pRule->peak;
 					}
-					AssertMsg( (STUDIO_VERSION == 35) || (STUDIO_VERSION == 36), "Remove the code before this line" );
+//					AssertMsg( (STUDIO_VERSION == 35) || (STUDIO_VERSION == 36), "Remove the code before this line" );
 
 					float flCheck = flCycle;
 					if (flCheck < pRule->start)
@@ -2887,16 +2970,16 @@ void Studio_SeqAnims( const studiohdr_t *pStudioHdr, int iSequence, const float 
 	Studio_LocalPoseParameter( pStudioHdr, poseParameter, pseqdesc, 0, s0, i0 );
 	Studio_LocalPoseParameter( pStudioHdr, poseParameter, pseqdesc, 1, s1, i1 );
 
-	panim[0] = pStudioHdr->pAnimdesc( pseqdesc->anim[i0  ][i1  ] );
+	panim[0] = GetAnimDesc( pStudioHdr, pseqdesc, i0  , i1   );
 	weight[0] = (1 - s0) * (1 - s1);
 
-	panim[1] = pStudioHdr->pAnimdesc( pseqdesc->anim[i0+1][i1  ] );
+	panim[1] = GetAnimDesc( pStudioHdr, pseqdesc, i0+1, i1   );
 	weight[1] = (s0) * (1 - s1);
 
-	panim[2] = pStudioHdr->pAnimdesc( pseqdesc->anim[i0  ][i1+1] );
+	panim[2] = GetAnimDesc( pStudioHdr, pseqdesc, i0  , i1+1 );
 	weight[2] = (1 - s0) * (s1);
 
-	panim[3] = pStudioHdr->pAnimdesc( pseqdesc->anim[i0+1][i1+1] );
+	panim[3] = GetAnimDesc( pStudioHdr, pseqdesc, i0+1, i1+1 );
 	weight[3] = (s0) * (s1);
 
 	Assert( weight[0] >= 0.0f && weight[1] >= 0.0f && weight[2] >= 0.0f && weight[3] >= 0.0f );

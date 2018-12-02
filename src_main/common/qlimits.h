@@ -17,7 +17,7 @@
 #define MAX_NUM_ARGVS	50
 
 	// SYSTEM INFO
-#define	MAX_QPATH		64			// max length of a game pathname
+#define	MAX_QPATH		96			// max length of a game pathname
 #define	MAX_OSPATH		260			// max length of a filesystem pathname
 
 #define	ON_EPSILON		0.1			// point on plane side epsilon
@@ -26,9 +26,9 @@
 #define	MAX_LIGHTSTYLES			(1<<MAX_LIGHTSTYLE_INDEX_BITS)
 
 // Resource counts;
-#define MAX_MODEL_INDEX_BITS	9   // sent as a short
+#define MAX_MODEL_INDEX_BITS	10   // sent as a short
 #define	MAX_MODELS				(1<<MAX_MODEL_INDEX_BITS)
-#define MAX_SOUND_INDEX_BITS	11
+#define MAX_SOUND_INDEX_BITS	14
 #define	MAX_SOUNDS				(1<<MAX_SOUND_INDEX_BITS)
 
 #define MAX_GENERIC_INDEX_BITS	9
