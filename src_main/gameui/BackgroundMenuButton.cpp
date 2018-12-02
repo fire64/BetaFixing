@@ -62,7 +62,7 @@ void CBackgroundMenuButton::ApplySchemeSettings(IScheme *pScheme)
 	SetKeyFocusBorder(NULL);
 	SetTextInset(0, 0);
 
-	SetArmedSound("sound/UI/buttonrollover.wav");
-	SetDepressedSound("sound/UI/buttonclick.wav");
-	SetReleasedSound("sound/UI/buttonclickrelease.wav");
+	SetArmedSound("UI/buttonrollover.wav");
+	SetDepressedSound("UI/buttonclick.wav");
+	SetReleasedSound("UI/buttonclickrelease.wav");
 }

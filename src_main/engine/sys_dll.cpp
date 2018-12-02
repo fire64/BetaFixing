@@ -425,14 +425,17 @@ void Sys_InitMemory( void )
 	// but at least 10 Mb and no more than 32 Mb, unless they explicitly
 	// request otherwise
 	host_parms.memsize = lpBuffer.dwTotalPhys;
-
+	
 	if ( host_parms.memsize < FIFTEEN_MB )
 	{
-		Sys_Error( "Available memory less than 15MB!!! %i\n", host_parms.memsize );
+		//Sys_Error( "Available memory less than 15MB!!! %i\n", host_parms.memsize );
+		host_parms.memsize = (512 * 1024 * 1024); //Allocate 512mb for 64 bit system
 	}
-
-	// take half the physical memory
-	host_parms.memsize = (int)( lpBuffer.dwTotalPhys >> 1 );
+	else
+	{
+		// take half the physical memory
+		host_parms.memsize = (int)( lpBuffer.dwTotalPhys >> 1 );
+	}
 
 	// At least MINIMUM_WIN_MEMORY mb, even if we have to swap a lot.
 	if (host_parms.memsize < MINIMUM_WIN_MEMORY)

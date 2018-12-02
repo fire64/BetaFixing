@@ -140,6 +140,10 @@ SOURCE=..\..\Public\ChunkFile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\public\studio.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\common\cmdlib.cpp
 # End Source File
 # Begin Source File
