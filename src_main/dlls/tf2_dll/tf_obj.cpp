@@ -288,7 +288,7 @@ void CBaseObject::Spawn( void )
 	m_flHealth = m_iMaxHealth = m_iHealth;
 	m_iAmountPlayerPaidForMe = CalculateObjectCost( GetType(), 0, GetTeamNumber() );
 
-	SetContextThink( BaseObjectThink, gpGlobals->curtime + 0.1, OBJ_BASE_THINK_CONTEXT );
+	SetContextThink( &CBaseObject::BaseObjectThink, gpGlobals->curtime + 0.1, OBJ_BASE_THINK_CONTEXT );
 	m_szAmmoName = NULL;
 	NetworkStateManualMode( true );
 
@@ -921,7 +921,9 @@ bool CBaseObject::CalculatePlacement( CBaseTFPlayer *pPlayer )
 	Vector vecNearestBuildPoint = vec3_origin;
 	float flNearestPoint = 9999;
 	// First, look for nearby buildpoints on other objects
-	for ( int i = 0; i < GetTFTeam()->GetNumObjects(); i++ )
+	int i = 0;
+
+	for ( i = 0; i < GetTFTeam()->GetNumObjects(); i++ )
 	{
 		CBaseObject *pObject = GetTFTeam()->GetObject(i);
 		if ( pObject && !pObject->IsPlacing() )
@@ -1121,7 +1123,9 @@ bool CBaseObject::CheckBuildOrigin( CBaseTFPlayer *pPlayer, const Vector &vecIni
 		int nIterations = 6;
 		float topZ = flBoxTopZ;
 		float topZInc = (flBoxBottomZ - flBoxTopZ) / (nIterations-1);
-		for ( int iIteration = 0; iIteration < nIterations; iIteration++ )
+		int iIteration = 0;
+
+		for ( iIteration = 0; iIteration < nIterations; iIteration++ )
 		{
 			UTIL_TraceHull( 
 				Vector( m_vecBuildOrigin.x, m_vecBuildOrigin.y, topZ ), 
@@ -1735,8 +1739,10 @@ void Cmd_DamageDump_f(void)
 {	
 	CUtlDict<bool,int> g_UniqueColumns;
 
+	int idx = 0;
+
 	// Build the unique columns:
-	for( int idx = g_DamageMap.First(); idx != g_DamageMap.InvalidIndex(); idx = g_DamageMap.Next(idx) )
+	for( idx = g_DamageMap.First(); idx != g_DamageMap.InvalidIndex(); idx = g_DamageMap.Next(idx) )
 	{
 		char* szColumnName = strchr(g_DamageMap.GetElementName(idx),',') + 1;
 
@@ -2804,7 +2810,7 @@ void CBaseObject::SetPowerPack( CObjectPowerPack *pPack )
 		// Lose power in a second, to give any nearby powerpacks time to connect to me and replace the power
 		if ( bHadPower )
 		{
-			SetContextThink( LostPowerThink, gpGlobals->curtime + 1.0, OBJ_LOSTPOWER_THINK_CONTEXT );
+			SetContextThink( &CBaseObject::LostPowerThink, gpGlobals->curtime + 1.0, OBJ_LOSTPOWER_THINK_CONTEXT );
 			if ( GetTFTeam() )
 			{
 				// Dirty hack to make powerpack think I need power

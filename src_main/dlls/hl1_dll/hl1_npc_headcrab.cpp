@@ -161,7 +161,7 @@ void CNPC_Headcrab::StartTask( const Task_t *pTask )
 		case TASK_RANGE_ATTACK1:
 		{
 			SetIdealActivity( ACT_RANGE_ATTACK1 );
-			SetTouch( LeapTouch );
+			SetTouch( &CNPC_Headcrab::LeapTouch );
 			break;
 		}
 

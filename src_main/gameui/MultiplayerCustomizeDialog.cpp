@@ -68,7 +68,7 @@ CMultiplayerCustomizeDialog::CMultiplayerCustomizeDialog( Panel *menuTarget )
 	SetBounds(0, 0, 372, 160);
 	SetSizeable( false );
 
-	SetParent( GetGameUIRootPanel() );
+//	SetParent( GetGameUIRootPanel() );
 	surface()->CreatePopup( GetVPanel(), false );
 
 	SetTitle("#GameUI_MultiplayerCustomize", true);
@@ -93,14 +93,14 @@ CMultiplayerCustomizeDialog::CMultiplayerCustomizeDialog( Panel *menuTarget )
 
 	new CCvarToggleCheckButton( this, "High Quality Models", "#GameUI_HighModels", "cl_himodels" );
 
-	m_pModelList = new CLabeledCommandComboBox( this, "Player model", "#GameUI_PlayerModel" );
+	m_pModelList = new CLabeledCommandComboBox( this, "#GameUI_PlayerModel" );
 	InitModelList( m_pModelList );
 
-	m_pLogoList = new CLabeledCommandComboBox( this, "SpraypaintList", "#GameUI_SpraypaintImage" );
+	m_pLogoList = new CLabeledCommandComboBox( this, "#GameUI_SpraypaintImage" );
 	InitLogoList( m_pLogoList );
 
-	m_pColorList = new CLabeledCommandComboBox( this, "SpraypaintColor", "" );
-	m_pColorList->showLabel( false );
+	m_pColorList = new CLabeledCommandComboBox( this, "SpraypaintColor" );
+//	m_pColorList->showLabel( false );
 
 	
 	char const *currentcolor = NULL;

@@ -114,7 +114,9 @@ void CFuncMassTeleport::MassTeleport(
 
 	int count = UTIL_EntitiesInBox( pList, 1024, vSourceMins, vSourceMaxs, FL_CLIENT|FL_NPC|FL_OBJECT );
 
-	for( int i = 0; i < count; i++ )
+	int i = 0;
+
+	for( i = 0; i < count; i++ )
 	{
 		CBaseEntity* pEnt = pList[i];
 

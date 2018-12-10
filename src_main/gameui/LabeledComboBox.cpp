@@ -39,9 +39,9 @@ void CLabeledComboBox::setLabel( char const *text )
 	m_pLabel->SetText( text );
 }
 
-void CLabeledComboBox::RemoveAllItems()
+void CLabeledComboBox::DeleteAllItems()
 {
-	m_pComboBox->RemoveAllItems();
+	m_pComboBox->DeleteAllItems();
 }
 
 void CLabeledComboBox::ActivateItem(int itemIndex)
@@ -49,9 +49,9 @@ void CLabeledComboBox::ActivateItem(int itemIndex)
 	m_pComboBox->ActivateItem( itemIndex );
 }
 
-void CLabeledComboBox::AddItem( char const *text )
+void CLabeledComboBox::AddItem( char const *text, KeyValues *userData )
 {
-	m_pComboBox->AddItem( text );
+	m_pComboBox->AddItem( text, userData);
 }
 
 void CLabeledComboBox::OnTextChanged( char const *text )

@@ -113,7 +113,7 @@ void CFireDamageMgr::FrameUpdatePostEntityThink()
 
 	//   													   (-kt)
 	// Figure out how much all the damage decays this frame:  e
-	float flFrameDecay = pow( 2.718281828459045235360, -m_flDecayConstant * frametime );
+	float flFrameDecay = pow( 2.718281828459045235360f, -m_flDecayConstant * frametime );
 
 
 	int iNext;
@@ -135,7 +135,8 @@ void CFireDamageMgr::FrameUpdatePostEntityThink()
 
 		// Sum up each attacker's velocity.
 		float flTotalVelocity = 0;
-		for ( int i=0; i < pEnt->m_nAttackers; i++ )
+		int i=0;
+		for ( i = 0; i < pEnt->m_nAttackers; i++ )
 			flTotalVelocity += pEnt->m_Attackers[i].m_flVelocity;
 
 

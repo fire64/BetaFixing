@@ -322,10 +322,6 @@ SOURCE=..\Public\BSPTreeData.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\Public\studio.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\bugreporter.cpp
 # End Source File
 # Begin Source File
@@ -2035,6 +2031,10 @@ SOURCE=.\audio\private\snd_dsp.cpp
 # Begin Source File
 
 SOURCE=.\StaticPropMgr.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\Public\studio.cpp
 # End Source File
 # Begin Source File
 
@@ -4468,6 +4468,52 @@ SOURCE=.\audio\private\voice_wavefile.h
 SOURCE=.\audio\private\vox_private.h
 # End Source File
 # End Group
+# End Group
+# Begin Group "Unused"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\colorquant.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\mem.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\sys_linuxwind.cpp
+
+!IF  "$(CFG)" == "engine - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "engine - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "engine - Win32 Dedicated Debug"
+
+!ELSEIF  "$(CFG)" == "engine - Win32 Dedicated Release"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\taskbar.cpp
+
+!IF  "$(CFG)" == "engine - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "engine - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "engine - Win32 Dedicated Debug"
+
+!ELSEIF  "$(CFG)" == "engine - Win32 Dedicated Release"
+
+!ENDIF 
+
+# End Source File
 # End Group
 # Begin Source File
 

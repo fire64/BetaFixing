@@ -373,6 +373,8 @@ void CNPC_CombineGuard::Spawn( void )
 //-----------------------------------------------------------------------------
 void CNPC_CombineGuard::PrescheduleThink( void )
 {
+	int i = 0;
+
 	BaseClass::PrescheduleThink();
 	
 	if( HasCondition( COND_COMBINEGUARD_CLOBBERED ) )
@@ -380,7 +382,7 @@ void CNPC_CombineGuard::PrescheduleThink( void )
 		Msg( "CLOBBERED!\n" );
 	}
 
-	for ( int i = 1; i < NUM_CGUARD_ATTACHMENTS; i++ )
+	for ( i = 1; i < NUM_CGUARD_ATTACHMENTS; i++ )
 	{
 		if ( m_pGlowSprite[i] == NULL )
 			continue;

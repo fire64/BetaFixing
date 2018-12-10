@@ -1830,9 +1830,9 @@ void CBaseAnimating::DrawServerHitboxes( void )
 	Vector position;
 	QAngle angles;
 
-	for ( int b = 0; b < set->numhitboxes; b++ )
+	for ( int bs = 0; bs < set->numhitboxes; bs++ )
 	{
-		mstudiobbox_t *pbox = set->pHitbox( b );
+		mstudiobbox_t *pbox = set->pHitbox( bs );
 
 		GetBonePosition( pbox->bone, position, angles );
 

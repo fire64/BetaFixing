@@ -926,8 +926,8 @@ void CBaseHelicopter::NullThink( void )
 void CBaseHelicopter::Startup( void )
 {
 	m_flGoalSpeed = m_flInitialSpeed;
-	SetThink( HelicopterThink );
-	SetTouch( FlyTouch );
+	SetThink( &CBaseHelicopter::HelicopterThink );
+	SetTouch( &CBaseHelicopter::FlyTouch );
 	SetNextThink( gpGlobals->curtime + 0.1f );
 }
 
@@ -953,8 +953,8 @@ void CBaseHelicopter::Event_Killed( const CTakeDamageInfo &info )
 	StopLoopingSounds();
 
 	UTIL_SetSize( this, Vector( -32, -32, -64), Vector( 32, 32, 0) );
-	SetThink( CallDyingThink );
-	SetTouch( CrashTouch );
+	SetThink( &CBaseHelicopter::CallDyingThink );
+	SetTouch( &CBaseHelicopter::CrashTouch );
 
 	SetNextThink( gpGlobals->curtime + 0.1f );
 	m_iHealth = 0;

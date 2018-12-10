@@ -186,7 +186,7 @@ void CWeaponBugBait::BaitTouch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 void CWeaponBugBait::SetPickupTouch( void )
 {
-	SetTouch( BaitTouch );
+	SetTouch( &CWeaponBugBait::BaitTouch );
 }
 
 //-----------------------------------------------------------------------------

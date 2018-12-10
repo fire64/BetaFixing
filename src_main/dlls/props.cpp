@@ -898,7 +898,7 @@ void CDynamicProp::PropSetSequence( int nSequence )
 	ResetClientsideFrame();
 
 	RemoveFlag( FL_STATICPROP );
-	SetThink( AnimThink );
+	SetThink( &CDynamicProp::AnimThink );
 	SetNextThink( gpGlobals->curtime + 0.1f );
 }
 

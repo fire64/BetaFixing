@@ -124,7 +124,7 @@ void CGrenadeBugBait::Spawn( void )
 	UTIL_SetSize( this, Vector( -2, -2, -2), Vector( 2, 2, 2 ) );
 	Relink();
 
-	SetTouch( BugBaitTouch );
+	SetTouch( &CGrenadeBugBait::BugBaitTouch );
 
 	m_takedamage = DAMAGE_NO;
 
@@ -209,8 +209,10 @@ void CGrenadeBugBait::BugBaitTouch( CBaseEntity *pOther )
 		Vector(  0,  0, -1 ),
 	};
 
+	int i = 0;
+
 	//Splatter decals everywhere
-	for ( int i = 0; i < NUM_SPLASHES; i++ )
+	for ( i = 0; i < NUM_SPLASHES; i++ )
 	{
 		traceDir = directions[i];
 		tracePos = GetAbsOrigin() + ( traceDir * 64.0f );

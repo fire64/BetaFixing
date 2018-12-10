@@ -119,8 +119,9 @@ CBaseServerVehicle::~CBaseServerVehicle( void )
 void CBaseServerVehicle::Precache( void )
 {
 	// Precache all our gear sounds
+	int i = 0;
 	int iNumGears = m_vehicleSounds.pGears.Count();
-	for ( int i = 0; i < iNumGears; i++ )
+	for ( i = 0; i < iNumGears; i++ )
 	{
 		for ( int j = 0; j < VS_NUM_GEAR_SOUNDS; j++ )
 		{
@@ -786,12 +787,14 @@ void CBaseServerVehicle::SoundStart( void )
 //-----------------------------------------------------------------------------
 void CBaseServerVehicle::SoundShutdown( float flFadeTime )
 {
+	int i = 0;
+
 	StopSpeedSound( flFadeTime );
 	StopGearEngineLoop( flFadeTime );
 
 	// Stop any looping sounds that may be running, as the following stop sound may not exist
 	// and thus leave a looping sound playing after the user gets out.
-	for ( int i = 0; i < NUM_SOUNDS_TO_STOP_ON_EXIT; i++ )
+	for ( i = 0; i < NUM_SOUNDS_TO_STOP_ON_EXIT; i++ )
 	{
 		StopSound( g_iSoundsToStopOnExit[i] );
 	}

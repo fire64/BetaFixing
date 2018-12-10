@@ -155,8 +155,10 @@ void PrintPlayerClassStats()
 		return;
 
 
+	int i = 0;
+
 	pFileSys->FPrintf( hFile, "Class\tPlayer Time (minutes)\tAvg Engagement Dist\t(OLD) Engagement Dist\n" );
-	for ( int i=TFCLASS_UNDECIDED+1; i < STATS_NUM_GROUPS; i++ )
+	for ( i = TFCLASS_UNDECIDED+1; i < STATS_NUM_GROUPS; i++ )
 	{
 		CPlayerClassStats *pStats = &g_PlayerClassStats[i];
 
@@ -247,8 +249,9 @@ void PrintDetailedPlayerClassStats()
 	FileHandle_t hFile = pFileSys->Open( "class_stats_detailed.txt", "wt", "LOGDIR" );
 	if ( hFile != FILESYSTEM_INVALID_HANDLE )
 	{
+		int i= 0;
 		// Print the header.
-		for ( int i=TFCLASS_UNDECIDED+1; i < STATS_NUM_GROUPS; i++ )
+		for ( i=TFCLASS_UNDECIDED+1; i < STATS_NUM_GROUPS; i++ )
 		{
 			pFileSys->FPrintf( hFile, "%s dist\t%s dmg\t", GetGroupNameFor( i ), GetGroupNameFor( i ) );
 		}

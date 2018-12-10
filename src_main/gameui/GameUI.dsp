@@ -627,6 +627,47 @@ SOURCE=.\OptionsSubVoice.cpp
 SOURCE=.\OptionsSubVoice.h
 # End Source File
 # End Group
+# Begin Group "NotUsedFiles"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\DemoEditDialog.cpp
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\DemoEventsDialog.cpp
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\DemoPlayerDialog.cpp
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\DemoPlayerFileDialog.cpp
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\GameApp.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\GameMenuButton.cpp
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\LabeledComboBox.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MultiplayerCustomizeDialog.cpp
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=..\lib\public\vgui_controls.lib

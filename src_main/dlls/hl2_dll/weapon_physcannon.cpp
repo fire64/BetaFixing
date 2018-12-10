@@ -1406,6 +1406,8 @@ CSoundPatch *CWeaponPhysCannon::GetMotorSound( void )
 //-----------------------------------------------------------------------------
 void CWeaponPhysCannon::StopEffects( void )
 {
+	int i = 0;
+
 	//Turn off main glow
 	if ( m_pCenterSprite != NULL )
 	{
@@ -1418,7 +1420,7 @@ void CWeaponPhysCannon::StopEffects( void )
 	}
 
 	//Turn off beams
-	for ( int i = 0; i < NUM_BEAMS; i++ )
+	for ( i = 0; i < NUM_BEAMS; i++ )
 	{
 		if ( m_pBeams[i] != NULL )
 		{
@@ -1460,10 +1462,12 @@ void CWeaponPhysCannon::StartEffects( void )
 	if ( pOwner == NULL )
 		return;
 
+	int i = 0;
+
 	CBaseEntity *pBeamEnt = pOwner->GetViewModel();
 	
 	// Create the beams
-	for ( int i = 0; i < NUM_BEAMS; i++ )
+	for ( i = 0; i < NUM_BEAMS; i++ )
 	{
 		if ( m_pBeams[i] == NULL )
 		{
@@ -1575,6 +1579,8 @@ void CWeaponPhysCannon::DoEffect( int effectType, Vector *pos )
 	{
 	case EFFECT_CLOSED:
 		{
+			int i = 0;
+
 			//Turn off the center sprite
 			if ( m_pCenterSprite != NULL )
 			{
@@ -1584,7 +1590,7 @@ void CWeaponPhysCannon::DoEffect( int effectType, Vector *pos )
 			}
 
 			//Turn off the end-caps
-			for ( int i = 0; i < 2; i++ )
+			for ( i = 0; i < 2; i++ )
 			{
 				if ( m_pEndSprites[i] != NULL )
 				{
@@ -1625,6 +1631,8 @@ void CWeaponPhysCannon::DoEffect( int effectType, Vector *pos )
 
 	case EFFECT_READY:
 		{
+			int i = 0;
+
 			//Turn off the center sprite
 			if ( m_pCenterSprite != NULL )
 			{
@@ -1634,7 +1642,7 @@ void CWeaponPhysCannon::DoEffect( int effectType, Vector *pos )
 			}
 
 			//Turn off the end-caps
-			for ( int i = 0; i < 2; i++ )
+			for ( i = 0; i < 2; i++ )
 			{
 				if ( m_pEndSprites[i] != NULL )
 				{
@@ -1674,6 +1682,8 @@ void CWeaponPhysCannon::DoEffect( int effectType, Vector *pos )
 
 	case EFFECT_HOLDING:
 		{
+			int i = 0;
+
 			//Turn off the center sprite
 			if ( m_pCenterSprite != NULL )
 			{
@@ -1683,7 +1693,7 @@ void CWeaponPhysCannon::DoEffect( int effectType, Vector *pos )
 			}
 
 			//Turn off the end-caps
-			for ( int i = 0; i < 2; i++ )
+			for ( i = 0; i < 2; i++ )
 			{
 				if ( m_pEndSprites[i] != NULL )
 				{

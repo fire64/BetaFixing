@@ -169,7 +169,7 @@ void CNPC_FlockingFlyerFlock::Spawn( void )
 	SpawnFlock();
 
 
-	SetThink( SUB_Remove );
+	SetThink( &CBaseEntity::SUB_Remove );
 	SetNextThink( gpGlobals->curtime + 0.1f );
 }
 
@@ -218,7 +218,7 @@ void CNPC_FlockingFlyerFlock::SpawnFlock( void )
 		pBoid->SetAbsAngles( GetAbsAngles() );
 		
 		pBoid->m_flCycle = 0;
-		pBoid->SetThink( CNPC_FlockingFlyer::IdleThink );
+		pBoid->SetThink( &CNPC_FlockingFlyer::IdleThink );
 		pBoid->SetNextThink( gpGlobals->curtime + 0.2 );
 
 		if ( pBoid != pLeader ) 
@@ -247,7 +247,7 @@ void CNPC_FlockingFlyer::Spawn( )
 	
 	m_flCycle = 0;
 	SetNextThink( gpGlobals->curtime + 0.1f );
-	SetThink( IdleThink );
+	SetThink( &CNPC_FlockingFlyer::IdleThink );
 }
 
 //=========================================================
@@ -291,7 +291,7 @@ void CNPC_FlockingFlyer :: IdleThink( void )
 	// see if there's a client in the same pvs as the monster
 	if ( !FNullEnt( UTIL_FindClientInPVS( edict() ) ) )
 	{
-		SetThink( Start );
+		SetThink( &CNPC_FlockingFlyer::Start );
 		SetNextThink( gpGlobals->curtime + 0.1f );
 	}
 }
@@ -429,7 +429,7 @@ void CNPC_FlockingFlyer::Start( void )
 
 	if ( IsLeader() )
 	{
-		SetThink( FlockLeaderThink );
+		SetThink( &CNPC_FlockingFlyer::FlockLeaderThink );
 	}
 	else
 	{
@@ -753,7 +753,7 @@ void CNPC_FlockingFlyer::FlockFollowerThink( void )
 	if ( IsLeader() || !InSquad() )
 	{
 		// the leader has been killed and this flyer suddenly finds himself the leader. 
-		SetThink ( FlockLeaderThink );
+		SetThink ( &CNPC_FlockingFlyer::FlockLeaderThink );
 		return;
 	}
 
@@ -846,7 +846,7 @@ void CNPC_FlockingFlyer::Event_Killed( const CTakeDamageInfo &info )
 	UTIL_SetSize( this, Vector(0,0,0), Vector(0,0,0) );
 	SetMoveType( MOVETYPE_FLYGRAVITY );
 
-	SetThink ( FallHack );
+	SetThink ( &CNPC_FlockingFlyer::FallHack );
 	SetNextThink( gpGlobals->curtime + 0.1f );
 }
 

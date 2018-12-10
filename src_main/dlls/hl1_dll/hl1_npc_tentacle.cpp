@@ -331,10 +331,10 @@ void CNPC_Tentacle::Spawn( )
 	ResetSequenceInfo( );
 	m_iDir = 1;
 
-	SetThink( Start );
+	SetThink( &CNPC_Tentacle::Start );
 	SetNextThink( gpGlobals->curtime + 0.2 );
 
-	SetTouch( HitTouch );
+	SetTouch( &CNPC_Tentacle::HitTouch );
 
 	m_flInitialYaw = GetAbsAngles().y;
 	GetMotor()->SetIdealYawAndUpdate( m_flInitialYaw );
@@ -489,7 +489,7 @@ int CNPC_Tentacle::MyLevel( )
 
 void CNPC_Tentacle::Start( void )
 {
-	SetThink( Cycle );
+	SetThink( &CNPC_Tentacle::Cycle );
 
 	CPASAttenuationFilter filter( this );
 

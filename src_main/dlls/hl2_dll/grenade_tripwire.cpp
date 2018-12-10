@@ -68,7 +68,7 @@ void CTripwireGrenade::Spawn( void )
 
 	m_flPowerUp = gpGlobals->curtime + 1.2;//<<CHECK>>get rid of this
 	
-	SetThink( WarningThink );
+	SetThink( &CTripwireGrenade::WarningThink );
 	SetNextThink( gpGlobals->curtime + 1.0f );
 
 	m_takedamage		= DAMAGE_YES;
@@ -102,7 +102,7 @@ void CTripwireGrenade::WarningThink( void  )
 	EmitSound( "TripwireGrenade.Activate" );
 
 	// set to power up
-	SetThink( PowerupThink );
+	SetThink( &CTripwireGrenade::PowerupThink );
 	SetNextThink( gpGlobals->curtime + 1.0f );
 }
 
@@ -140,7 +140,7 @@ void CTripwireGrenade::BreakRope( void )
 
 void CTripwireGrenade::MakeRope( void )
 {
-	SetThink( RopeBreakThink );
+	SetThink( &CTripwireGrenade::RopeBreakThink );
 
 	// Delay first think slightly so rope has time
 	// to appear if person right in front of it
@@ -199,7 +199,7 @@ void CTripwireGrenade::RopeBreakThink( void  )
 		m_vTargetPos = m_pHook->GetAbsOrigin();
 		CrossProduct ( m_vecDir, Vector(0,0,1), m_vTargetOffset );
 		m_vTargetOffset *=TGRENADE_MISSILE_OFFSET; 
-		SetThink(FireThink);
+		SetThink(&CTripwireGrenade::FireThink);
 		FireThink();
 	}
 
@@ -218,7 +218,7 @@ void CTripwireGrenade::RopeBreakThink( void  )
 		m_vTargetPos = tr.endpos;
 		CrossProduct ( m_vecDir, Vector(0,0,1), m_vTargetOffset );
 		m_vTargetOffset *=TGRENADE_MISSILE_OFFSET; 
-		SetThink(FireThink);
+		SetThink(&CTripwireGrenade::FireThink);
 		FireThink();
 		return;
 	}

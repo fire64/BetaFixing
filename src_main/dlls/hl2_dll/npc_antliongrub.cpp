@@ -282,7 +282,7 @@ void CNPC_AntlionGrub::Spawn( void )
 
 	m_nHealthReserve		= 10;
 	
-	SetTouch( GrubTouch );
+	SetTouch( &CNPC_AntlionGrub::GrubTouch );
 
 	CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
 
@@ -788,7 +788,7 @@ void CNPC_AntlionGrub::Event_Killed( const CTakeDamageInfo &info )
 	if ( m_bSquashed == false )
 	{
 		//Restore this touch so we can still be squished
-		SetTouch( GrubTouch );
+		SetTouch( &CNPC_AntlionGrub::GrubTouch );
 	}
 	else
 	{

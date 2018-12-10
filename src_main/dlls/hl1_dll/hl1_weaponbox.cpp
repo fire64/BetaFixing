@@ -68,7 +68,7 @@ void CWeaponBox::Spawn( void )
 	SetModel( WEAPONBOX_MODEL );
 	BaseClass::Spawn();
 
-	SetTouch( BoxTouch );
+	SetTouch( &CWeaponBox::BoxTouch );
 }
 
 

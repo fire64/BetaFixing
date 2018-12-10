@@ -136,6 +136,7 @@ struct Relationship_t
 //-----------------------------------------------------------------------------
 class CBaseCombatCharacter : public CBaseFlex
 {
+public:
 	DECLARE_CLASS( CBaseCombatCharacter, CBaseFlex );
 
 public:
@@ -358,6 +359,7 @@ protected:
 
 public:
 	CNetworkVar( float, m_flNextAttack );			// cannot attack again until this time
+	static int					GetInteractionID();	// Returns the next interaction #
 
 protected:
 private:
@@ -377,7 +379,6 @@ private:
 	friend class CScriptedTarget; // needs to access GetInteractionID()
 	
 	static int					m_lastInteraction;	// Last registered interaction #
-	static int					GetInteractionID();	// Returns the next interaction #
 	static Relationship_t**		m_DefaultRelationship;
 
 	bool		m_bOnFire;				// am I burning?

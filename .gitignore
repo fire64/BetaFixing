@@ -42,6 +42,15 @@
 *.pdb
 *.asm
 *.bak
+*.htm
+*.bsc
+*.dep
+*.manifest
+*.dsw
+*.ncb
+*.opt
+*.suo
+*.user
 
 
 

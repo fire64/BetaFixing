@@ -162,6 +162,7 @@ void CWeaponTwoHandedContainer::SetWeapons( CBaseTFCombatWeapon *left, CBaseTFCo
 	if ( !pOwner )
 		return;
 
+/*
 	// Do we have a different left weapon?
 	if ( m_hLeftWeapon.Get() && m_hLeftWeapon != left )
 	{
@@ -203,6 +204,7 @@ void CWeaponTwoHandedContainer::SetWeapons( CBaseTFCombatWeapon *left, CBaseTFCo
 			UnhideSecondViewmodel();
 		}
 	}
+*/
 }
 
 //-----------------------------------------------------------------------------

@@ -1195,7 +1195,7 @@ void CFastZombie::StartTask( const Task_t *pTask )
 		// Make melee attacks impossible until we land!
 		m_flNextMeleeAttack = gpGlobals->curtime + 60;
 
-		SetTouch( LeapAttackTouch );
+		SetTouch( &CFastZombie::LeapAttackTouch );
 		break;
 
 	case TASK_FASTZOMBIE_DO_ATTACK:
@@ -1452,7 +1452,7 @@ void CFastZombie::OnChangeActivity( Activity NewActivity )
 		// Started a climb!
 		ENVELOPE_CONTROLLER.SoundChangeVolume( m_pMoanSound, 0.0, 0.2 );
 
-		SetTouch( ClimbTouch );
+		SetTouch( &CFastZombie::ClimbTouch );
 	}
 	else if ( GetActivity() == ACT_CLIMB_UP )
 	{

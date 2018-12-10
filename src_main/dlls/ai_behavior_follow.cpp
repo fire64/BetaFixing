@@ -1028,7 +1028,7 @@ AI_FollowManagerInfoHandle_t CAI_FollowManager::AddFollower( CBaseEntity *pTarge
 {
 	AI_FollowGroup_t *pGroup = FindCreateGroup( pTarget );
 	int slot = FindBestSlot( pGroup, pFollower );
-
+/*
 	if ( slot != -1 )
 	{
 		AI_FollowSlot_t *pSlot 		= &pGroup->pFormation->pSlots[slot];
@@ -1044,6 +1044,7 @@ AI_FollowManagerInfoHandle_t CAI_FollowManager::AddFollower( CBaseEntity *pTarge
 		
 		return *((AI_FollowManagerInfoHandle_t *)((void *)&iterNode));
 	}
+*/
 	return NULL;
 }
 

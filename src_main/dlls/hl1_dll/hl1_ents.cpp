@@ -203,7 +203,7 @@ void CTriggerRelay::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 		m_flTargetValue = value;
 
 		m_flTimeRefireDone = gpGlobals->curtime + m_flRefireDuration;
-		SetThink( RefireThink );
+		SetThink( &CTriggerRelay::RefireThink );
 		SetNextThink( gpGlobals->curtime + m_flRefireInterval );
 	}
 }
@@ -306,8 +306,8 @@ bool CMultiManager::KeyValue( const char *szKeyName, const char *szValue )
 void CMultiManager :: Spawn( void )
 {
 	SetSolid( SOLID_NONE );
-	SetUse ( ManagerUse );
-	SetThink ( ManagerThink);
+	SetUse ( &CMultiManager::ManagerUse );
+	SetThink ( &CMultiManager::ManagerThink);
 
 	// Sort targets
 	// Quick and dirty bubble sort
@@ -362,7 +362,7 @@ void CMultiManager :: ManagerThink ( void )
 	if ( m_index >= m_cTargets )// have we fired all targets?
 	{
 		SetThink( NULL );
-		SetUse ( ManagerUse );// allow manager re-use 
+		SetUse ( &CMultiManager::ManagerUse );// allow manager re-use 
 	}
 	else
 	{
@@ -386,7 +386,7 @@ void CMultiManager :: ManagerUse ( CBaseEntity *pActivator, CBaseEntity *pCaller
 
 	SetUse( NULL );// disable use until all targets have fired
 
-	SetThink ( ManagerThink );
+	SetThink ( &CMultiManager::ManagerThink );
 	SetNextThink( gpGlobals->curtime );
 }
 
@@ -458,12 +458,12 @@ void CPendulum :: Spawn( void )
 
 		if ( FBitSet( m_spawnflags, SF_BRUSH_ROTATE_START_ON ) )
 		{		
-			SetThink( SUB_CallUseToggle );
+			SetThink( &CBaseEntity::SUB_CallUseToggle );
 			SetNextThink( gpGlobals->curtime + 0.1f );
 		}
 
 		m_flSpeed = 0;
-		SetUse( PendulumUse );
+		SetUse( &CPendulum::PendulumUse );
 
 		VPhysicsInitShadow( false, false );
 		///VPhysicsGetObject()->SetPosition( GetAbsOrigin(), pev->absangles );
@@ -473,7 +473,7 @@ void CPendulum :: Spawn( void )
 
 	if ( FBitSet( m_spawnflags, SF_PENDULUM_SWING ) )
 	{
-		SetTouch ( RopeTouch );
+		SetTouch ( &CPendulum::RopeTouch );
 	}
 }
 
@@ -490,7 +490,7 @@ void CPendulum :: PendulumUse( CBaseEntity *pActivator, CBaseEntity *pCaller, US
 
 			SetLocalAngularVelocity( m_flMaxSpeed * m_vecMoveAng );
 			SetNextThink( gpGlobals->curtime + delta / m_flMaxSpeed);
-			SetThink( Stop );
+			SetThink( &CPendulum::Stop );
 		}
 		else
 		{
@@ -503,7 +503,7 @@ void CPendulum :: PendulumUse( CBaseEntity *pActivator, CBaseEntity *pCaller, US
 	{
 		SetNextThink( gpGlobals->curtime + 0.1f );		// Start the pendulum moving
 		m_flTime = gpGlobals->curtime;		// Save time to calculate dt
-		SetThink( Swing );
+		SetThink( &CPendulum::Swing );
 		m_flDampSpeed = m_flMaxSpeed;
 	}
 }
@@ -512,7 +512,7 @@ void CPendulum::InputActivate( inputdata_t &inputdata )
 {
 	SetNextThink( gpGlobals->curtime + 0.1f );		// Start the pendulum moving
 	m_flTime = gpGlobals->curtime;				// Save time to calculate dt
-	SetThink( Swing );
+	SetThink( &CPendulum::Swing );
 	m_flDampSpeed = m_flMaxSpeed;
 }
 
@@ -790,7 +790,7 @@ void CMortar::Spawn( )
 	SetDamage( 200 );
 	SetDamageRadius( GetDamage() * 2.5 );
 
-	SetThink( MortarExplode );
+	SetThink( &CMortar::MortarExplode );
 	SetNextThink( TICK_NEVER_THINK );
 
 	Precache( );
@@ -1546,7 +1546,7 @@ void CHL1Gib::WaitTillLand ( void )
 		AddSolidFlags( FSOLID_NOT_SOLID );*/
 		
 		SetNextThink( gpGlobals->curtime + m_lifeTime );
-		SetThink ( SUB_FadeOut );
+		SetThink ( &CBaseEntity::SUB_FadeOut );
 
 		// If you bleed, you stink!
 	/*	if ( m_bloodColor != DONT_BLEED )

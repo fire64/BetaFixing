@@ -991,7 +991,7 @@ void CNPC_RollerMine::Open( void )
 		SetModel( "models/roller_spikes.mdl" );
 		EmitSound( "NPC_RollerMine.OpenSpikes" );
 
-		SetTouch( ShockTouch );
+		SetTouch( &CNPC_RollerMine::ShockTouch );
 		m_bIsOpen = true;
 
 		// Don't hop if we're constrained
@@ -1110,7 +1110,7 @@ void CNPC_RollerMine::ShockTouch( CBaseEntity *pOther )
 	impulse *= 600;
 
 	// jump up at a 30 degree angle away from the guy we hit
-	SetTouch( CloseTouch );
+	SetTouch( &CNPC_RollerMine::CloseTouch );
 	Vector vel;
 	pPhysics->SetVelocity( &impulse, NULL );
 	EmitSound( "NPC_RollerMine.Shock" );
@@ -1238,12 +1238,13 @@ void CNPC_RollerMine::StickToVehicle( CBaseEntity *pOther )
 void CNPC_RollerMine::AnnounceArrivalToOthers( CBaseEntity *pOther )
 {
 	// Now talk to any other rollermines stuck to the same vehicle
+	int i = 0;
 	CBaseEntity *entityList[64];
 	Vector range(256,256,256);
 	CUtlVector<CNPC_RollerMine*> aRollersOnVehicle;
 	aRollersOnVehicle.AddToTail( this );
 	int boxCount = UTIL_EntitiesInBox( entityList, ARRAYSIZE(entityList), GetAbsOrigin()-range, GetAbsOrigin()+range, FL_NPC );
-	for ( int i = 0; i < boxCount; i++ )
+	for ( i = 0; i < boxCount; i++ )
 	{
 		CAI_BaseNPC *pNPC = entityList[i]->MyNPCPointer();
 		if ( pNPC && pNPC->m_iClassname == m_iClassname && pNPC != this )
@@ -1392,7 +1393,7 @@ void CNPC_RollerMine::OnPhysGunDrop( CBasePlayer *pPhysGunUser, bool wasLaunched
 		if ( m_bIsOpen )
 		{
 			m_bIsPrimed = true;
-			SetTouch( SpikeTouch );
+			SetTouch( &CNPC_RollerMine::SpikeTouch );
 			// enable world/prop touch too
 			VPhysicsGetObject()->SetCallbackFlags( VPhysicsGetObject()->GetCallbackFlags() | CALLBACK_GLOBAL_TOUCH|CALLBACK_GLOBAL_TOUCH_STATIC );
 		}
@@ -1425,7 +1426,7 @@ int CNPC_RollerMine::OnTakeDamage( const CTakeDamageInfo &info )
 	{
 		if ( info.GetAttacker() && info.GetAttacker()->m_iClassname != m_iClassname )
 		{
-			SetThink( PreDetonate );
+			SetThink( &CNPC_RollerMine::PreDetonate );
 			SetNextThink( gpGlobals->curtime + random->RandomFloat( 0.1f, 0.5f ) );
 		}
 		else
@@ -1469,7 +1470,7 @@ void CNPC_RollerMine::PreDetonate( void )
 	Hop( 300 );
 
 	SetTouch( NULL );
-	SetThink( Explode );
+	SetThink( &CNPC_RollerMine::Explode );
 	SetNextThink( gpGlobals->curtime + 0.5f );
 
 	EmitSound( "NPC_RollerMine.Hurt" );
@@ -1504,7 +1505,7 @@ void CNPC_RollerMine::Explode( void )
 	Event_Killed( info );
 
 	// Remove myself a frame from now to avoid doing it in the middle of running AI
-	SetThink( SUB_Remove );
+	SetThink( &CBaseEntity::SUB_Remove );
 	SetNextThink( gpGlobals->curtime );
 }
 

@@ -267,6 +267,7 @@ struct datamap_t
 //
 
 #define DECLARE_SIMPLE_DATADESC() \
+	public: \
 	static datamap_t m_DataMap; \
 	template <typename T> friend datamap_t *DataMapInit(T *);
 

@@ -554,7 +554,7 @@ float CWeaponCombatShield::AttemptToBlock( float flDamage )
 	RemoveShieldHealth( flPowerUsed );
 
 	// Start recharging shortly after taking damage
-	SetThink( ShieldRechargeThink );
+	SetThink( &CWeaponCombatShield::ShieldRechargeThink );
 	SetNextThink( gpGlobals->curtime + weapon_combat_shield_rechargetime.GetFloat() );
 #endif
 

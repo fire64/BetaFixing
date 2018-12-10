@@ -154,7 +154,7 @@ void CTetherHook::StartTouch( CBaseEntity *pOther )
 			m_pSpring = physenv->CreateSpring( g_PhysWorldObject, pEnd, &spring );
 		}
 
-		SetThink( HookThink );
+		SetThink( &CTetherHook::HookThink );
 		SetNextThink( gpGlobals->curtime + 0.1f );
 		//UTIL_Remove(this);
 	}
@@ -284,7 +284,7 @@ void CGrenadeHopWire::Precache( void )
 //-----------------------------------------------------------------------------
 void CGrenadeHopWire::SetTimer( float timer )
 {
-	SetThink( PreDetonate );
+	SetThink( &CBaseGrenade::PreDetonate );
 	SetNextThink( gpGlobals->curtime + timer );
 }
 
@@ -341,12 +341,12 @@ void CGrenadeHopWire::TetherThink( void )
 	if ( m_nHooksShot == 8 )
 	{
 		//TODO: Play a startup noise
-		SetThink( CombatThink );
+		SetThink( &CGrenadeHopWire::CombatThink );
 		SetNextThink( gpGlobals->curtime + 0.1f );
 	}
 	else
 	{
-		SetThink( TetherThink );
+		SetThink( &CGrenadeHopWire::TetherThink );
 		SetNextThink( gpGlobals->curtime + random->RandomFloat( 0.1f, 0.3f ) );
 	}
 }
@@ -382,7 +382,7 @@ void CGrenadeHopWire::Detonate( void )
 	SetVelocity( hopVel, hopAngle );
 
 	//Shoot 4-8 cords out to grasp the surroundings
-	SetThink( TetherThink );
+	SetThink( &CGrenadeHopWire::TetherThink );
 	SetNextThink( gpGlobals->curtime + 0.6f );
 }
 

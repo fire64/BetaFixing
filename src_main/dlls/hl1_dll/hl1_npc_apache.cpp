@@ -710,8 +710,8 @@ void CApacheHVR :: Spawn( void )
 	UTIL_SetSize(this, Vector( 0, 0, 0), Vector(0, 0, 0));
 	UTIL_SetOrigin( this, GetAbsOrigin() );
 
-	SetThink( IgniteThink );
-	SetTouch( Detonate );
+	SetThink( &CApacheHVR::IgniteThink );
+	SetTouch( &CApacheHVR::Detonate );
 
 	
 	AngleVectors( GetAbsAngles(), &m_vecForward );
@@ -743,7 +743,7 @@ void CApacheHVR :: IgniteThink( void  )
 	StartRocketTrail();
 
 	// set to accelerate
-	SetThink( AccelerateThink );
+	SetThink( &CApacheHVR::AccelerateThink );
 	SetNextThink( gpGlobals->curtime + 0.1f );
 }
 

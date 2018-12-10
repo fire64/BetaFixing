@@ -795,7 +795,7 @@ void CServerGameDLL::GetSaveComment( char *text, int maxlength )
 		pName = mapname;
 	}
 
-	Q_snprintf( text, maxlength, "%-64.64s %02d:%02d", pName, (int)(gpGlobals->curtime/60.0), (int)fmod(gpGlobals->curtime, 60.0) );
+	Q_snprintf( text, maxlength, "%-64.64s %02d:%02d", pName, (int)(gpGlobals->curtime/60.0), (int)fmod(gpGlobals->curtime, 60.0f) );
 }
 
 void CServerGameDLL::WriteSaveHeaders( CSaveRestoreData *s )

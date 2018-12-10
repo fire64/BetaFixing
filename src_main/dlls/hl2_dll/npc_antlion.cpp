@@ -418,7 +418,7 @@ void CNPC_Antlion::Spawn( void )
 		SetActivity( (Activity) ACT_ANTLION_BURROW_IDLE );
 		SetSchedule( SCHED_ANTLION_WAIT_FOR_UNBORROW_TRIGGER );
 
-		SetUse( BurrowUse );
+		SetUse( &CNPC_Antlion::BurrowUse );
 	}
 
 	BaseClass::Spawn();
@@ -429,9 +429,11 @@ void CNPC_Antlion::Spawn( void )
 //-----------------------------------------------------------------------------
 void CNPC_Antlion::Precache( void )
 {
+	int i = 0;
+
 	engine->PrecacheModel( ANTLION_MODEL );
 
-	for ( int i = 0; i < NUM_ANTLION_GIBS_SMALL; i++ )
+	for ( i = 0; i < NUM_ANTLION_GIBS_SMALL; i++ )
 	{
 		engine->PrecacheModel( m_AntlionGibsSmall[i] );
 	}
@@ -929,7 +931,7 @@ void CNPC_Antlion::StartTask( const Task_t *pTask )
 
 			// NOTE: We can't UTIL_Remove here, because we're in the middle of running our AI, and
 			//		 we'll crash later in the bowels of the AI. Remove ourselves next frame.
-			SetThink( SUB_Remove );
+			SetThink( &CBaseEntity::SUB_Remove );
 			SetNextThink( gpGlobals->curtime + 0.1 );
 		}
 

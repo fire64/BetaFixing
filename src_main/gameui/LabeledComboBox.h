@@ -24,8 +24,8 @@ public:
 
 	virtual void	setLabel( char const *text );
 	virtual void	GetText( char *buffer, int len );
-	virtual void	RemoveAllItems();
-	virtual void	AddItem( char const *text );
+	virtual void	DeleteAllItems();
+	virtual void	AddItem( char const *text, KeyValues *userData );
 	virtual void	ActivateItem(int itemIndex);
 
 	virtual void	OnSizeChanged(int newWide, int newTall);

@@ -476,7 +476,7 @@ void CNPC_BaseTurret::Initialize(void)
 	}
 	else
 	{
-		SetThink( SUB_DoNothing ); 
+		SetThink( &CBaseEntity::SUB_DoNothing ); 
 	}
 }
 
@@ -945,7 +945,7 @@ void CNPC_BaseTurret::Retire(void)
 			}
 			else
 			{
-				SetThink( SUB_DoNothing );
+				SetThink( &CBaseEntity::SUB_DoNothing );
 			}
 		}
 	}

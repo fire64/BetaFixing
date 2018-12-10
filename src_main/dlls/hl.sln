@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hl", "hl.vcproj", "{46439D5B-440B-4083-A8F5-9F0CA9B39B77}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug CounterStrike|Win32 = Debug CounterStrike|Win32
+		Debug HL1|Win32 = Debug HL1|Win32
+		Debug HL2|Win32 = Debug HL2|Win32
+		Debug TF2|Win32 = Debug TF2|Win32
+		Release CounterStrike|Win32 = Release CounterStrike|Win32
+		Release HL1|Win32 = Release HL1|Win32
+		Release HL2|Win32 = Release HL2|Win32
+		Release TF2|Win32 = Release TF2|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Debug CounterStrike|Win32.ActiveCfg = Debug CounterStrike|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Debug CounterStrike|Win32.Build.0 = Debug CounterStrike|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Debug HL1|Win32.ActiveCfg = Debug HL1|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Debug HL1|Win32.Build.0 = Debug HL1|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Debug HL2|Win32.ActiveCfg = Debug HL2|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Debug HL2|Win32.Build.0 = Debug HL2|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Debug TF2|Win32.ActiveCfg = Debug TF2|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Debug TF2|Win32.Build.0 = Debug TF2|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Release CounterStrike|Win32.ActiveCfg = Release CounterStrike|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Release CounterStrike|Win32.Build.0 = Release CounterStrike|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Release HL1|Win32.ActiveCfg = Release HL1|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Release HL1|Win32.Build.0 = Release HL1|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Release HL2|Win32.ActiveCfg = Release HL2|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Release HL2|Win32.Build.0 = Release HL2|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Release TF2|Win32.ActiveCfg = Release TF2|Win32
+		{46439D5B-440B-4083-A8F5-9F0CA9B39B77}.Release TF2|Win32.Build.0 = Release TF2|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

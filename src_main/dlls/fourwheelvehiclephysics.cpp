@@ -962,7 +962,7 @@ void CFourWheelVehiclePhysics::SteeringTurn( float carSpeed, const vehicleparams
 	{		
 		// TODO: change the log function to an approx. 
 		m_nTurnLeftCount = clamp( m_nTurnLeftCount, 2, 30 );
-		flSteeringRate *= log( m_nTurnLeftCount );
+		flSteeringRate *= log( (float)m_nTurnLeftCount );
 		flSteeringRate *= gpGlobals->frametime;
 
 		SetSteering( -1, flSteeringRate );
@@ -974,7 +974,7 @@ void CFourWheelVehiclePhysics::SteeringTurn( float carSpeed, const vehicleparams
 	{
 		// TODO: change the log function to an approx. 
 		m_nTurnRightCount = clamp( m_nTurnRightCount, 2, 30 );
-		flSteeringRate *= log( m_nTurnRightCount );
+		flSteeringRate *= log( (float)m_nTurnRightCount );
 		flSteeringRate *= gpGlobals->frametime;
 
 		SetSteering( 1, flSteeringRate );

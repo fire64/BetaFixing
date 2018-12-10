@@ -220,7 +220,7 @@ float CBaseHeadcrab::MaxYawSpeed( void )
 //-----------------------------------------------------------------------------
 void CBaseHeadcrab::JumpAttack( bool bRandomJump, const Vector &vecPos, bool bThrown )
 {
-	SetTouch( LeapTouch );
+	SetTouch( &CBaseHeadcrab::LeapTouch );
 
 	RemoveFlag( FL_ONGROUND );
 
@@ -488,7 +488,7 @@ void CBaseHeadcrab::LeapTouch( CBaseEntity *pOther )
 	}
 
 	SetTouch( NULL );
-	SetThink ( CallNPCThink );
+	SetThink ( &CAI_BaseNPC::CallNPCThink );
 }
 
 
@@ -1718,7 +1718,7 @@ void CBlackHeadcrab::JumpAttack( bool bRandomJump, const Vector &vecPos, bool bT
 void CBlackHeadcrab::ThrowAt( const Vector &vecPos )
 {
 	JumpAttack( false, vecPos, true );
-	SetThink( ThrowThink );
+	SetThink( &CBlackHeadcrab::ThrowThink );
 	SetNextThink( gpGlobals->curtime );
 }
 
@@ -1782,7 +1782,7 @@ void CBlackHeadcrab::Eject( const QAngle &vecAngles, float flVelocityScale, CBas
 	SetAbsVelocity( flVelocityScale * random->RandomInt( 20, 50 ) * 
 		Vector( random->RandomFloat( -1.0, 1.0 ), random->RandomFloat( -1.0, 1.0 ), random->RandomFloat( 0.5, 1.0 ) ) );
 
-	SetTouch( EjectTouch );
+	SetTouch( &CBlackHeadcrab::EjectTouch );
 }
 
 

@@ -429,7 +429,7 @@ void CObjectTunnelTrigger::Activate( void )
 
 	SetActive( true );
 
-	SetThink( TunnelThink );
+	SetThink( &CObjectTunnelTrigger::TunnelThink );
 	SetNextThink( gpGlobals->curtime + TUNNEL_THINK_INTERVAL );
 
 	NetworkStateChanged();

@@ -175,6 +175,8 @@ void CVehicleTeleportStation::OnFinishedDeploy( void )
 	ValidDeployPosition();
 	SetBodygroup( 1, false );
 
+	int i = 0;
+
 	// Find the teleport in the mothership
 	CFuncMassTeleport *pTeleporter = NULL;
 	while ( (pTeleporter = (CFuncMassTeleport*)gEntList.FindEntityByClassname( pTeleporter, "func_mass_teleport" )) != NULL )
@@ -190,7 +192,7 @@ void CVehicleTeleportStation::OnFinishedDeploy( void )
 	// Put some flares down to mark the teleport zone
 	Vector vecOrigin;
 	QAngle vecAngles;
-	for ( int i = 0; i < 4; i++ )
+	for ( i = 0; i < 4; i++ )
 	{
 		char buf[64];
 		Q_snprintf( buf, 64, "teleport_corner%d", i+1 );
@@ -210,7 +212,7 @@ void CVehicleTeleportStation::OnFinishedDeploy( void )
 		m_hTeleportCornerSprites[4]->SetScale( 0.1 );
 	}
 
-	SetContextThink( PostTeleportThink, gpGlobals->curtime + 0.1, TELEPORT_STATION_THINK_CONTEXT );
+	SetContextThink( &CVehicleTeleportStation::PostTeleportThink, gpGlobals->curtime + 0.1, TELEPORT_STATION_THINK_CONTEXT );
 
 	// Add ourselves to the list of deployed MCVs.
 	s_DeployedTeleportStations.AddToTail( this );
@@ -295,8 +297,10 @@ bool CVehicleTeleportStation::ValidDeployPosition( void )
 
 	m_vecTeleporterMaxs.z += TELEPORT_STATION_ZONE_HEIGHT;
 
+	int i = 0;
+
 	// Make sure we've got the right mins & maxs
-	for ( int i = 0; i < 3; i++ )
+	for ( i = 0; i < 3; i++ )
 	{
 		if ( m_vecTeleporterMaxs[i] < m_vecTeleporterMins[i] )
 		{
@@ -375,7 +379,7 @@ void CVehicleTeleportStation::DoTeleport( void )
 		}
 	}
 
-	SetContextThink( PostTeleportThink, gpGlobals->curtime + 0.1, TELEPORT_STATION_THINK_CONTEXT );
+	SetContextThink( &CVehicleTeleportStation::PostTeleportThink, gpGlobals->curtime + 0.1, TELEPORT_STATION_THINK_CONTEXT );
 }
 
 //-----------------------------------------------------------------------------
